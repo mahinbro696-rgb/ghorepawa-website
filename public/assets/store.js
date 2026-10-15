@@ -36,3 +36,19 @@ document.addEventListener('visibilitychange', () => {
     element.style.animationPlayState = document.hidden ? 'paused' : 'running';
   });
 });
+
+// Explicitly labeled demonstration, not an actual offer deadline.
+const countdownStart = Date.now();
+const demoDuration = 1 * 3600 + 24 * 60 + 33;
+const digits = value => new Intl.NumberFormat('bn-BD', {minimumIntegerDigits: 2, useGrouping: false}).format(value);
+function updateDemoTimer() {
+  const remaining = Math.max(0, demoDuration - Math.floor((Date.now() - countdownStart) / 1000));
+  const values = {hours: Math.floor(remaining / 3600), minutes: Math.floor(remaining % 3600 / 60), seconds: remaining % 60};
+  for (const [unit, value] of Object.entries(values)) {
+    const element = document.querySelector('#timer-' + unit);
+    if (element) element.textContent = digits(value);
+  }
+  if (remaining === 0) clearInterval(demoInterval);
+}
+const demoInterval = setInterval(updateDemoTimer, 1000);
+updateDemoTimer();
