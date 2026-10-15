@@ -52,3 +52,16 @@ function updateDemoTimer() {
 }
 const demoInterval = setInterval(updateDemoTimer, 1000);
 updateDemoTimer();
+
+// Native horizontal scrolling supports swipe, trackpad, keyboard and buttons.
+const reviewsTrack = document.querySelector('#reviews-track');
+if (reviewsTrack) {
+  for (const [id, direction] of [['#reviews-prev', -1], ['#reviews-next', 1]]) {
+    document.querySelector(id)?.addEventListener('click', () => {
+      const card = reviewsTrack.querySelector('.review-card');
+      if (!card) return;
+      const gap = parseFloat(getComputedStyle(reviewsTrack).gap) || 0;
+      reviewsTrack.scrollBy({left: direction * (card.getBoundingClientRect().width + gap), behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'});
+    });
+  }
+}
