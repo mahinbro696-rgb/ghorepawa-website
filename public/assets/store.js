@@ -14,3 +14,25 @@ document.querySelector('#order-form').addEventListener('submit', event => {
   document.querySelector('#form-status').textContent = 'ফর্মের প্রিভিউ পরীক্ষা হয়েছে। এটি বাস্তব অর্ডার নয়; আপনার তথ্য পাঠানো বা সংরক্ষণ করা হয়নি।';
 });
 update();
+
+// Reveal content once; preserve full visibility without JavaScript or reduced motion.
+if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  const observer = new IntersectionObserver(entries => {
+    for (const entry of entries) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        observer.unobserve(entry.target);
+      }
+    }
+  }, {threshold: 0.08});
+  document.querySelectorAll('.details, .care-heading, .care-cards article, .order-intro, .order-card, .faq > div').forEach(element => {
+    element.classList.add('reveal-ready');
+    observer.observe(element);
+  });
+}
+// Pause decorative animation in background tabs.
+document.addEventListener('visibilitychange', () => {
+  document.querySelectorAll('.product-stage img, .orbit-one').forEach(element => {
+    element.style.animationPlayState = document.hidden ? 'paused' : 'running';
+  });
+});
