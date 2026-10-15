@@ -1,0 +1,7 @@
+{
+  "name": "ghorepawa-ever-strong",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {"build": "node scripts/build.mjs", "check": "node --check public/assets/store.js"},
+  "engines": {"node": ">=20"}
+}
