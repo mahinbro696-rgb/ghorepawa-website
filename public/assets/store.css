@@ -446,3 +446,20 @@ input:autofill{box-shadow:0 0 0 100px #1b3022 inset;-webkit-text-fill-color:#f1f
 
 /* Center the standalone order form after removing its introduction column. */
 .order-grid.order-only{grid-template-columns:minmax(0,1fr);max-width:680px;gap:0}
+
+/* Readable review cards with a seamless left-to-right marquee. */
+.reviews-window{--reviews-gap:23px;overflow:hidden;padding:4px 0}
+.reviews-window .reviews-track{gap:var(--reviews-gap)}
+.reviews-window .review-card{flex:0 0 335px;min-height:220px;border-radius:22px;padding:25px;font-family:'Hind Siliguri','Noto Sans Bengali',sans-serif}
+.reviews-window .review-person h3{font-size:19px}
+.reviews-window .review-card>p{font-size:22px;line-height:1.8;color:#e2eddf;margin:24px 0 0}
+.reviews-window .review-duplicate{display:none}
+.reviews-window.is-moving .reviews-track{width:max-content;overflow:visible;scroll-snap-type:none;animation:reviews-travel-right 65s linear infinite}
+.reviews-window.is-moving .review-duplicate{display:flex}
+.reviews-window.is-paused .reviews-track,.reviews-window.is-offscreen .reviews-track,.reviews-window.is-background .reviews-track,.reviews-window:focus-within .reviews-track{animation-play-state:paused}
+.reviews-controls #reviews-pause{width:auto;height:auto;padding:9px 20px;border-radius:30px;font:600 14px/1.7 'Noto Sans Bengali',sans-serif}
+.reviews-controls #reviews-pause[hidden]{display:none}
+@media(hover:hover){.reviews-window:hover .reviews-track{animation-play-state:paused}}
+@media(max-width:700px){.reviews-window{--reviews-gap:16px}.reviews-window .review-card{flex-basis:280px;min-height:220px;padding:22px}.reviews-window .review-card>p{font-size:21px}.reviews-window.is-moving .reviews-track{animation-duration:60s}}
+@keyframes reviews-travel-right{from{transform:translateX(calc(-50% - var(--reviews-gap)/2))}to{transform:translateX(0)}}
+@media(prefers-reduced-motion:reduce){.reviews-window .reviews-track{animation:none!important;transform:none!important}.reviews-window .review-duplicate{display:none!important}}
