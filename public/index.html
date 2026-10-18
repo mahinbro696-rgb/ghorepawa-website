@@ -8,9 +8,9 @@
   <meta name="theme-color" content="#09120e">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="assets/store.css?v=review-portraits-15">
+  <link rel="stylesheet" href="assets/store.css?v=professional-checkout-16">
   <link rel="stylesheet" href="assets/hero-photo.css">
-  <script src="assets/store.js?v=reviews-marquee-14" defer></script>
+  <script src="assets/store.js?v=professional-checkout-16" defer></script>
 </head>
 <body>
   <main>
@@ -73,15 +73,26 @@
       </div>
     </section>
     <section class="order-section" id="order"><div class="wrap order-grid order-only section">
-      <form id="order-form" class="order-card">
-        <div class="form-heading"><h3>অর্ডারের তথ্য</h3><span>প্রিভিউ</span></div><div class="package"><div><strong>Ever Strong</strong><small>প্রতি বোতল</small></div><div class="quantity"><button type="button" id="minus" aria-label="এক বোতল কমান">−</button><output id="quantity" aria-live="polite">1</output><button type="button" id="plus" aria-label="এক বোতল বাড়ান">+</button></div></div>
-        <label>আপনার নাম<input name="name" autocomplete="name" required maxlength="100" placeholder="সম্পূর্ণ নাম"></label>
-        <label>মোবাইল নম্বর<input name="phone" type="tel" autocomplete="tel" required placeholder="01XXXXXXXXX" inputmode="tel" pattern="(?:\+?88)?01[3-9][0-9]{8}"></label>
-        <div class="form-row"><label>জেলা<input name="district" required autocomplete="address-level1" maxlength="60" placeholder="আপনার জেলা"></label><label>থানা / উপজেলা<input name="area" required maxlength="80" placeholder="থানা / উপজেলা"></label></div>
-        <label>সম্পূর্ণ ঠিকানা<textarea name="address" required autocomplete="street-address" maxlength="500" rows="3" placeholder="বাসা, রোড, গ্রাম / এলাকা"></textarea></label>
-        <div class="totals"><div><span>প্রোডাক্টের মূল্য</span><span id="subtotal">৳৩৯৯</span></div><div><span>ডেলিভারি</span><span>ফ্রি</span></div><div class="grand"><strong>সর্বমোট</strong><strong id="total">৳৩৯৯</strong></div></div>
-        <p class="form-note">প্রিভিউতে তথ্য সার্ভারে পাঠানো বা অর্ডার সংরক্ষণ করা হবে না।</p>
-        <button class="button submit" type="submit">ফর্ম প্রিভিউ পরীক্ষা করুন <span>→</span></button><p id="form-status" role="status" aria-live="polite"></p>
+      <form id="order-form" class="order-card checkout-card">
+        <div class="checkout-heading"><span class="checkout-kicker">আপনার অর্ডার</span><h2>অর্ডারের তথ্য দিন</h2><p>নাম, মোবাইল নম্বর ও ঠিকানা সঠিকভাবে পূরণ করুন।</p></div>
+        <fieldset class="checkout-group"><legend><span>০১</span> পণ্য ও পরিমাণ</legend>
+          <div class="package checkout-package">
+            <div class="checkout-product"><img src="assets/ever-strong.png" alt="Ever Strong" width="56" height="76" loading="lazy"><div><strong>Ever Strong</strong><small>প্রতি বোতল <b>৳৩৯৯</b></small><span class="checkout-delivery">ডেলিভারি ফ্রি</span></div></div>
+            <div class="quantity" aria-label="বোতলের পরিমাণ"><button type="button" id="minus" aria-label="এক বোতল কমান">−</button><output id="quantity" aria-live="polite">১</output><button type="button" id="plus" aria-label="এক বোতল বাড়ান">+</button></div>
+          </div>
+        </fieldset>
+        <fieldset class="checkout-group"><legend><span>০২</span> আপনার যোগাযোগ ও ঠিকানা</legend>
+          <div class="form-row"><label for="customer-name">আপনার নাম <span class="field-required">*</span><input id="customer-name" name="name" autocomplete="name" required maxlength="100" placeholder="সম্পূর্ণ নাম লিখুন"></label>
+          <label for="customer-phone">মোবাইল নম্বর <span class="field-required">*</span><input id="customer-phone" name="phone" type="tel" autocomplete="tel" required placeholder="01XXXXXXXXX" inputmode="tel" pattern="(?:\+?88)?01[3-9][0-9]{8}" aria-describedby="phone-help"><small id="phone-help" class="field-help">যোগাযোগের জন্য সচল নম্বর দিন</small></label></div>
+          <div class="form-row"><label for="customer-district">জেলা <span class="field-required">*</span><input id="customer-district" name="district" required autocomplete="address-level1" maxlength="60" placeholder="আপনার জেলা"></label><label for="customer-area">থানা / উপজেলা <span class="field-required">*</span><input id="customer-area" name="area" required autocomplete="address-level2" maxlength="80" placeholder="থানা বা উপজেলার নাম"></label></div>
+          <label for="customer-address">সম্পূর্ণ ঠিকানা <span class="field-required">*</span><textarea id="customer-address" name="address" required autocomplete="street-address" maxlength="500" rows="3" placeholder="বাসা / হোল্ডিং, রোড, গ্রাম ও এলাকার নাম"></textarea></label>
+        </fieldset>
+        <fieldset class="checkout-group checkout-summary"><legend><span>০৩</span> অর্ডারের হিসাব</legend>
+          <div class="totals"><div><span>Ever Strong × <span id="summary-quantity">১</span></span><span id="subtotal">৳৩৯৯</span></div><div><span>ডেলিভারি চার্জ</span><span class="summary-free">ফ্রি</span></div><div class="grand"><strong>সর্বমোট</strong><strong id="total">৳৩৯৯</strong></div></div>
+        </fieldset>
+        <button class="button submit checkout-submit" type="submit">অর্ডারের তথ্য যাচাই করুন <span aria-hidden="true">→</span></button>
+        <p id="form-status" role="status" aria-live="polite"></p>
+        <div class="checkout-support"><p class="form-note">অনলাইন অর্ডার সংরক্ষণ এখনো চালু হয়নি। অর্ডার করতে সরাসরি কল করুন।</p><a href="tel:+8809639224727">কল করুন <span>+8809639224727 ↗</span></a></div>
       </form>
     </div></section>
     <section id="faq" class="faq wrap section"><div><span class="eyebrow">সাধারণ প্রশ্নোত্তর</span><h2>আপনার প্রশ্ন,<br>আমাদের উত্তর।</h2></div><div><details open><summary>ডেলিভারি চার্জ কত?</summary><p>বর্তমান অফারে ডেলিভারি ফ্রি। ১ বোতলের সর্বমোট দাম ৩৯৯ টাকা।</p></details><details><summary>পেমেন্ট কীভাবে করব?</summary><p>পেমেন্ট পদ্ধতি এখনো চূড়ান্ত হয়নি। বিস্তারিত জানতে +8809639224727 নম্বরে যোগাযোগ করুন।</p></details><details><summary>উপাদান ও ব্যবহারবিধি কোথায় পাব?</summary><p>পূর্ণ উপাদান তালিকা ও প্রস্তুতকারকের ব্যবহারবিধি এখনো প্রকাশিত হয়নি। কেনার আগে বিক্রেতার কাছ থেকে পূর্ণ তথ্য জেনে নিন।</p></details><details><summary>ল্যাব রিপোর্ট ও BSTI সনদ দেখা যাবে?</summary><p>বিক্রেতা রিপোর্ট ও সনদ থাকার কথা জানিয়েছেন। নথিগুলো পাওয়া ও যাচাই হলে এখানে দেখার ব্যবস্থা করা হবে। বর্তমানে সাইটে কোনো যাচাইকৃত নথি প্রকাশিত নেই।</p></details><details><summary>কত সময়ে কাজ করবে বা কী ফল পাওয়া যাবে?</summary><p>এই পণ্যের কার্যকারিতা, ফল পেতে প্রয়োজনীয় সময় বা যৌনসময় বৃদ্ধির পক্ষে যাচাইকৃত ক্লিনিক্যাল তথ্য এখানে প্রকাশিত নেই। তাই নির্দিষ্ট সময় বা ফলের নিশ্চয়তা দেওয়া হচ্ছে না।</p></details></div></section>
