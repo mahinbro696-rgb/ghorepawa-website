@@ -264,3 +264,14 @@ input:autofill{box-shadow:0 0 0 100px #1b3022 inset;-webkit-text-fill-color:#f1f
 @keyframes showcase-light{0%,100%{opacity:.55;transform:scale(.95)}50%{opacity:1;transform:scale(1.08)}}
 @keyframes showcase-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 @keyframes showcase-sheen{0%,60%{transform:translateX(-110%)}90%,100%{transform:translateX(110%)}}
+
+/* Integrated offer action with a slow gold glint. */
+.hero-offer-card .hero-offer-cta{position:relative;isolation:isolate;overflow:hidden;display:flex;width:100%;min-width:0;justify-content:center;gap:24px;margin-top:23px;padding:17px 24px;border:1px solid #f3d897;border-radius:15px;background:linear-gradient(115deg,#bf9648,#f0d797 48%,#d3ad60);color:#18251a;box-shadow:0 0 0 4px #d6b3650b,0 8px 24px #d6b36520,inset 0 1px 0 #fff6;font:700 25px/1.5 'Hind Siliguri','Noto Sans Bengali',sans-serif;text-shadow:0 1px 0 #ffffff28}
+.hero-offer-card .hero-offer-cta::before{content:"";position:absolute;inset:-45% 0;z-index:-1;pointer-events:none;background:linear-gradient(110deg,transparent 30%,#fff8 48%,#fff3 53%,transparent 70%);transform:translateX(-130%) skewX(-12deg)}
+.hero-offer-card .hero-offer-cta:hover{background:linear-gradient(115deg,#d2ad64,#ffe9b3 48%,#dfbf7e);border-color:#ffe5aa;box-shadow:0 0 0 4px #d6b36515,0 10px 28px #d6b36533}
+.hero-offer-card .hero-offer-cta:focus-visible{outline:3px solid #fff0c7;outline-offset:5px}
+.hero-offer-card .hero-offer-cta:active{transform:translateY(1px)}
+@media(max-width:700px){.hero-offer-card .hero-offer-cta{font-size:24px;padding:16px 20px;margin-top:20px}}
+@media(prefers-reduced-motion:no-preference){.hero-offer-card .hero-offer-cta{animation:offer-cta-gold-glow 4.8s ease-in-out infinite}.hero-offer-card .hero-offer-cta::before{animation:offer-cta-glint 4.8s ease-in-out infinite}}
+@keyframes offer-cta-glint{0%,55%{transform:translateX(-130%) skewX(-12deg)}85%,100%{transform:translateX(130%) skewX(-12deg)}}
+@keyframes offer-cta-gold-glow{0%,55%,100%{box-shadow:0 0 0 4px #d6b3650b,0 8px 24px #d6b36520,inset 0 1px 0 #fff6}75%{box-shadow:0 0 0 4px #d6b36518,0 0 28px #d6b3653d,inset 0 1px 0 #fff8}}
