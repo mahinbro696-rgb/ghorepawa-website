@@ -374,3 +374,39 @@ input:autofill{box-shadow:0 0 0 100px #1b3022 inset;-webkit-text-fill-color:#f1f
 @keyframes headline-haze-cloud{0%{opacity:0;transform:translate(0,-12vh) scale(.4)}20%{opacity:.8}100%{opacity:0;transform:translate(var(--haze-x),var(--haze-y)) scale(2.2)}}
 @keyframes headline-text-shine{0%,45%{background-position:100% 50%}85%,100%{background-position:0% 50%}}
 @media(prefers-reduced-motion:reduce){.headline-arrival-haze{display:none}.headline-banner p{animation:none!important}.headline-banner p .headline-main,.headline-banner p .headline-secondary{animation:none!important}}
+
+/* Mobile rendering: prioritize text clarity and compositor-only movement. */
+@media(max-width:900px),(pointer:coarse){
+  html{scroll-behavior:auto}
+  .headline-arrival-haze,.highlight-impact-cloud{display:none}
+  .headline-banner p{animation:none;box-shadow:0 8px 20px #0003}
+  .headline-banner p .headline-main,.headline-banner p .headline-secondary{animation:none!important;background:none!important;-webkit-background-clip:border-box;background-clip:border-box;-webkit-text-fill-color:currentColor}
+  .headline-banner p .headline-main{color:#fff0c8}
+  .headline-banner p .headline-secondary{color:#d9e9d7}
+  .minimal-showcase .showcase-summary{animation:none;backdrop-filter:none;-webkit-backdrop-filter:none;background:linear-gradient(125deg,#2a4132f5,#1d3427f5);box-shadow:inset 0 1px 0 #fff3,0 8px 16px #0003}
+  .minimal-showcase .showcase-summary::before{animation-duration:7s}
+  .reference-image .product-stage.minimal-showcase::before{animation:none;opacity:.8}
+  .reference-image .product-stage.minimal-showcase::after{box-shadow:none}
+  .showcase-gallery::before{filter:none}
+  .reference-image .minimal-showcase .showcase-gallery img{filter:none;will-change:auto;backface-visibility:hidden}
+  .reference-image .minimal-showcase .showcase-gallery .showcase-slide{--enter-x:22px;--enter-y:0px}
+  .reference-image .minimal-showcase .showcase-gallery .showcase-slide-two{--view-scale:1.06}
+  .reference-image .minimal-showcase .showcase-gallery .showcase-slide-three{--view-rotate:-3deg}
+  .gallery-orbit{animation:none!important}
+  .hero-free-delivery{animation:none;box-shadow:0 5px 14px #0002}
+  .hero-highlight-points li{animation-name:mobile-point-float}
+  .hero-highlight-points li::before{animation:none}
+  .hero-offer-card .hero-offer-cta{animation:none}
+  .mobile-buy{backdrop-filter:none;-webkit-backdrop-filter:none;background:#102118}
+}
+@media(prefers-reduced-motion:no-preference) and (max-width:900px){
+  .headline-banner p{animation:headline-mobile-arrival .55s ease-out both}
+  .reference-image .minimal-showcase .showcase-gallery .showcase-slide{animation-name:product-gallery-mobile}
+}
+@keyframes headline-mobile-arrival{from{opacity:0;transform:translateY(-26px)}to{opacity:1;transform:translateY(0)}}
+@keyframes mobile-point-float{0%,65%,100%{transform:translateY(0)}30%{transform:translateY(-1px)}}
+@keyframes product-gallery-mobile{
+  0%,29%{opacity:1;transform:translateX(-50%) scale(var(--view-scale)) rotate(var(--view-rotate))}
+  33%,99.99%{opacity:0;transform:translateX(calc(-50% + 16px)) scale(var(--view-scale)) rotate(var(--view-rotate))}
+  100%{opacity:1;transform:translateX(-50%) scale(var(--view-scale)) rotate(var(--view-rotate))}
+}
