@@ -463,3 +463,9 @@ input:autofill{box-shadow:0 0 0 100px #1b3022 inset;-webkit-text-fill-color:#f1f
 @media(max-width:700px){.reviews-window{--reviews-gap:16px}.reviews-window .review-card{flex-basis:280px;min-height:220px;padding:22px}.reviews-window .review-card>p{font-size:21px}.reviews-window.is-moving .reviews-track{animation-duration:60s}}
 @keyframes reviews-travel-right{from{transform:translateX(calc(-50% - var(--reviews-gap)/2))}to{transform:translateX(0)}}
 @media(prefers-reduced-motion:reduce){.reviews-window .reviews-track{animation:none!important;transform:none!important}.reviews-window .review-duplicate{display:none!important}}
+
+/* Distinct illustrated male avatars for the draft review cards. */
+.reviews-window .review-avatar.review-portrait{display:block;overflow:hidden;flex:0 0 62px;width:62px;height:62px;border:2px solid #d1b573;outline:4px solid #e5c47b0c;background:#263c2c;box-shadow:0 4px 12px #0003}
+.review-portrait svg{display:block;width:100%;height:100%;border-radius:50%}
+.reviews-window .review-person{gap:14px}
+@media(max-width:700px){.reviews-window .review-avatar.review-portrait{flex-basis:56px;width:56px;height:56px}.reviews-window .review-person{gap:12px}}
