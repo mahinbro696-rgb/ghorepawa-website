@@ -135,3 +135,25 @@ if (reviewsTrack) {
     });
   });
 })();
+
+// Brief decorative haze for the headline arrival; never blocks interaction.
+(() => {
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  if (reducedMotion.matches || !document.querySelector('.headline-banner')) return;
+  const haze = document.createElement('div');
+  haze.className = 'headline-arrival-haze';
+  haze.setAttribute('aria-hidden', 'true');
+  const directions = [[-40, 10], [40, 15], [-20, 40], [20, 50], [-50, 60], [50, 65]];
+  for (const [x, y] of directions) {
+    const cloud = document.createElement('i');
+    cloud.style.setProperty('--haze-x', x + 'vw');
+    cloud.style.setProperty('--haze-y', y + 'vh');
+    haze.append(cloud);
+  }
+  document.body.append(haze);
+  const cleanup = () => haze.remove();
+  const timer = setTimeout(cleanup, 2200);
+  reducedMotion.addEventListener('change', () => {
+    if (reducedMotion.matches) { clearTimeout(timer); cleanup(); }
+  }, {once:true});
+})();
