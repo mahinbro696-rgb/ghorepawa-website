@@ -145,3 +145,82 @@
 }
 @keyframes offer-price-pop{0%,65%,100%{transform:scale(1)}25%{transform:scale(1.045)}40%{transform:scale(1)}}
 @keyframes offer-delivery-glow{0%,65%,100%{box-shadow:0 8px 20px #07553d16}30%{box-shadow:0 0 0 3px #d4b56840,0 10px 24px #07553d22}}
+
+/* Site-wide dark theme: evergreen surfaces, warm gold and readable mint accents. */
+:root{color-scheme:dark;--ink:#edf4ef;--text:#edf4ef;--green:#8de4b9;--bright:#a0ebc0;--gold:#e5c47b;--muted:#b3c5ba;--line:#30473b;--paper:#13251c}
+body{background:#09120e;color:var(--ink)}
+::selection{background:#e5c47b;color:#142419}
+.preview{background:#101e17;color:#b8cbbf;border-color:var(--line)}
+.header,.reference-details,.footer{border-color:var(--line)}
+.brand-icon{background:#b4e7c6;color:#103322}
+nav .contact{background:#142a1e;border-color:#3b5947;color:#b4edcc}
+nav a:hover{color:#ffe0a0}
+.button,.offer-pill,.reference-badge{background:#e5c47b;color:#17251c;box-shadow:0 8px 24px #0003}
+.button:hover{background:#f4d99e;box-shadow:0 12px 30px #0005}
+.headline-banner p{background:radial-gradient(ellipse at 100% 0%,#3c624680,transparent 65%),linear-gradient(120deg,#143d2a,#10291e);border-color:#39523b;box-shadow:0 14px 32px #0003}
+.headline-banner p span{color:#d2e5d8}
+.reference-lead{color:#b9cdbf}
+body .hero-photo{background:#12251b;box-shadow:0 12px 32px #0004;outline:1px solid #30473b}
+.reference-features>div,.product-points li,.directions-box,.order-card,.review-card{background:#13231b;border-color:var(--line);box-shadow:0 8px 25px #0002}
+.reference-features strong,.product-points strong,.directions-box h3,.form-heading h3,.faq summary{color:#edf4ef}
+.hero-highlight-points li{background:linear-gradient(115deg,#172b20,#122219);border-color:#354c3c;color:#e2f2e5}
+.hero-highlight-points li:first-child{background:linear-gradient(115deg,#203b29,#14281d);border-color:#546041;color:#f0e0b5}
+.hero-highlight-points li::before{background:linear-gradient(145deg,#493e25,#2d2b1e);border-color:#8b7748;color:#f5d992;box-shadow:inset 0 1px 0 #ffffff12}
+.hero-highlight-points li::after{background:#d6b66e}
+@media(hover:hover) and (pointer:fine){.hero-highlight-points li:hover{border-color:#9c8753;box-shadow:0 10px 24px #0004}}
+.product-stage{background:radial-gradient(ellipse at 50% 40%,#264c33,#142c1e 60%,#102118);border-color:#36533e;box-shadow:0 18px 48px #0004}
+.product-stage::before{background:radial-gradient(ellipse at 50% 42%,#83b27325,transparent 66%)}
+.product-stage::after{background:#0007}
+.stage-label{color:#c3d7bf}.stage-label span{color:#f0d799}
+.orbit{border-color:#c9ac6533}.orbit-two{border-color:#c9ac6520}
+.orbit-one::before{background:#d6bd7b;box-shadow:0 0 0 5px #d6bd7b15}
+.delivery-tag{background:#182e21;border-color:#456040;color:#edf2dd;box-shadow:0 6px 20px #0003}
+.delivery-tag small{color:#bfd0bf}
+.delivery-tag>span:first-child{background:#2b4430;color:#edcf8a}
+.delivery-tag .delivery-symbol{color:#d4b76e}
+.hero-offer-card{background:radial-gradient(ellipse at top right,#b9993820,transparent 65%),linear-gradient(140deg,#1c3021,#102219);border-color:#7a6b3f;box-shadow:0 16px 40px #0004}
+.hero-offer-card .hero-offer-title{background:#3c3520;color:#f3dba2}
+.hero-offer-unit,.hero-price-current>span{color:#c1d2bd}
+.hero-offer-card .hero-price-current strong{color:#f4d68a;text-shadow:0 4px 24px #e5c47b20}
+.hero-price-previous{background:#3d2222;border-color:#8a4541;color:#ffb6af}
+.hero-offer-card .hero-price-previous del{color:#ff9a91;text-decoration-color:#ff9a91}
+.hero-offer-card p.hero-offer-saving{background:#302d1b;border-color:#6e6137;color:#ebdcb5}
+.hero-offer-card p.hero-offer-saving b{color:#ffe0a0}
+.hero-free-delivery{background:linear-gradient(115deg,#174c35,#1d6143);border:1px solid #4f875b}
+.hero-free-delivery strong{color:#fff0bc}
+.hero-free-delivery div>span{color:#e0f0e6}
+.hero-offer-card p.hero-offer-total{color:#c1d2bd}
+.hero-offer-card p.hero-offer-total b{color:#f4d68a}
+.offer-surface{background:radial-gradient(ellipse at 95% 5%,#56633630,transparent 65%),linear-gradient(135deg,#182e20,#14231a);border-color:#4e6040;box-shadow:0 15px 40px #0003}
+.special-price strong{color:#f4d68a}.special-price del{color:#ff9a91}
+.offer-saving{color:#d6e3d5}.offer-saving span{color:#e5c47b}
+.countdown>div{background:linear-gradient(#843d45,#57212d);border:1px solid #b86a71;box-shadow:0 10px 20px #0003}
+.countdown-note{color:#b3c5ba}
+.delivery-banner{background:#193b28;border-color:#486541}
+.delivery-banner>span,.delivery-banner strong{color:#f2d68f}
+.delivery-banner small{color:#ccddcb}
+.directions-box>span{background:#293d2a;color:#f1d798}
+.text-link{color:#a0ebc0;border-color:#5c916e}
+.reviews-section{background:#0e1b14;border-color:var(--line)}
+.reviews-badge{background:#254331;color:#c0efcf}
+.reviews-heading p,.review-card>p,.review-person>div>span,.review-bottom>span:last-child,.reviews-controls span{color:#b3c5ba}
+.reviews-stars{color:#e5c47b}
+.review-person h3{color:#eef5ed}
+.review-avatar{background:#284332;color:#f3e1ad;border-color:#c2a769;outline-color:#1d3325}
+.review-sample{background:#283a2b;color:#d2dfc9}
+.review-card:hover{border-color:#7c9164}
+.reviews-track{scrollbar-color:#526c53 transparent}
+.reviews-controls button{background:#1b3022;border-color:#496347;color:#e6d59e}
+.reviews-controls button:hover{background:#304b30}
+.order-section{background:#0f1f16;border-color:var(--line)}
+.mini-product,.call-card{border-color:var(--line)}
+.form-heading>span{background:#2b3a23;color:#dfdfb7}
+.package{background:#1b3022;border-color:#3b5340}
+.quantity button{background:#263d2b;border-color:#526c53;color:#e3efdd}
+input,textarea{background:#0c1912;border-color:#49604d;color:#f1f6ef}
+input::placeholder,textarea::placeholder{color:#a2b4a6}
+input:focus,textarea:focus{outline-color:#e5c47b}
+input:autofill{box-shadow:0 0 0 100px #1b3022 inset;-webkit-text-fill-color:#f1f6ef}
+.mobile-buy{background:#102118f5;border-color:#40533a;box-shadow:0 -8px 25px #0004;color:#f0dfad}
+.mobile-buy strong{background:#e5c47b;color:#17251c}
+@keyframes highlight-badge-glow{0%,100%{box-shadow:inset 0 1px 0 #ffffff12,0 0 0 0 #d6b66e00}50%{box-shadow:inset 0 1px 0 #ffffff12,0 0 0 5px #d6b66e22}}
