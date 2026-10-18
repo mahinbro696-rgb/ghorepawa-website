@@ -525,3 +525,6 @@ input:autofill{box-shadow:0 0 0 100px #1b3022 inset;-webkit-text-fill-color:#f1f
 .checkout-card input,.checkout-card textarea{font-size:17px;font-weight:400}
 .checkout-card .checkout-submit{font-size:20px;font-weight:700}
 @media(max-width:700px){.checkout-card .quantity output{min-width:36px;font-size:21px}.checkout-card .checkout-submit{font-size:19px}}
+
+.closing-poster{padding-top:30px;padding-bottom:30px}
+@media(max-width:700px){.closing-poster{padding-top:22px;padding-bottom:100px}}
