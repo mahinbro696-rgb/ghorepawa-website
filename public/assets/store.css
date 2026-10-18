@@ -41,3 +41,33 @@
 @media(max-width:700px){.product-stage{min-height:480px;max-width:430px;border-radius:24px;padding:63px 0 98px}.product-stage img{height:320px;width:auto;margin:0}.stage-label{top:20px;font-size:11px}.stage-label span{font-size:17px}.delivery-tag{left:16px;right:16px;bottom:16px;padding:13px;font-size:13px;gap:10px}.delivery-tag small{font-size:11px}.product-stage::after{bottom:101px}}
 @media(max-width:370px){.product-stage{min-height:455px}.product-stage img{height:295px}.delivery-tag{font-size:12px}}
 @media(prefers-reduced-motion:reduce){.product-stage img,.orbit-one,.orbit-two{animation:none!important}}
+
+
+/* Staggered highlight motion; keep every point readable without animation. */
+@media(prefers-reduced-motion:no-preference){
+  .hero-highlight-points li{
+    --point-delay:0s;
+    animation:highlight-arrive .7s cubic-bezier(.22,1,.36,1) var(--point-delay) backwards;
+    transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease;
+  }
+  .hero-highlight-points li:nth-child(2){--point-delay:.16s}
+  .hero-highlight-points li:nth-child(3){--point-delay:.32s}
+  .hero-highlight-points li::before{
+    animation:highlight-badge-glow 1.6s ease-in-out calc(var(--point-delay) + .65s) 2;
+  }
+  @media(hover:hover) and (pointer:fine){
+    .hero-highlight-points li:hover{transform:translateY(-3px);border-color:#c2cfae;box-shadow:0 10px 24px #193d2710}
+  }
+  .hero-highlight-points li:active{transform:translateY(-1px)}
+}
+@keyframes highlight-arrive{
+  from{opacity:0;transform:translateY(18px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes highlight-badge-glow{
+  0%,100%{box-shadow:inset 0 1px 0 #fff,0 0 0 0 #ba9a4d00}
+  50%{box-shadow:inset 0 1px 0 #fff,0 0 0 5px #ba9a4d18}
+}
+@media(prefers-reduced-motion:reduce){
+  .hero-highlight-points li,.hero-highlight-points li::before{animation:none!important;transition:none!important}
+}
