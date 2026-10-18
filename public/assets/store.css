@@ -410,3 +410,15 @@ input:autofill{box-shadow:0 0 0 100px #1b3022 inset;-webkit-text-fill-color:#f1f
   33%,99.99%{opacity:0;transform:translateX(calc(-50% + 16px)) scale(var(--view-scale)) rotate(var(--view-rotate))}
   100%{opacity:1;transform:translateX(-50%) scale(var(--view-scale)) rotate(var(--view-rotate))}
 }
+
+/* A single offer card contains pricing, countdown, delivery and purchase action. */
+.hero-offer-card .countdown-block{margin:20px 0;padding:18px 12px 13px;border:1px solid #aa89594d;border-radius:16px;background:linear-gradient(140deg,#201f1b80,#14241b)}
+.hero-offer-card .countdown-title{margin:0 0 12px;color:#e8dbb7;text-align:center;font:600 18px/1.5 'Hind Siliguri','Noto Sans Bengali',sans-serif}
+.hero-offer-card .countdown{gap:12px}
+.hero-offer-card .countdown>div{position:relative;overflow:hidden;width:80px;min-height:88px;padding:9px 0 10px;border:1px solid #cf9b7666;border-radius:13px;background:linear-gradient(155deg,#764147,#4b222c);box-shadow:0 0 16px #e4b5741a,inset 0 1px 0 #ffdfbc26;color:#fff1d5}
+.hero-offer-card .countdown strong{position:relative;display:block;overflow:hidden;height:1.45em;width:100%;font:700 32px/1.45 'Hind Siliguri','Noto Sans Bengali',sans-serif;font-variant-numeric:tabular-nums;text-shadow:0 0 12px #f7d89933}
+.countdown strong .timer-value,.countdown strong .timer-previous{position:absolute;inset:0;display:block;font:inherit;line-height:inherit;letter-spacing:0;text-align:center}
+.hero-offer-card .countdown>div>span{font:600 14px/1.5 'Hind Siliguri','Noto Sans Bengali',sans-serif;color:#f1dccb}
+.hero-offer-card p.countdown-note{font-size:12px;line-height:1.7;color:#b5c3b5;text-align:center;margin:12px auto 0;max-width:360px}
+@media(max-width:700px){.hero-offer-card .countdown-block{padding:16px 10px 12px;margin-block:18px}.hero-offer-card .countdown>div{width:74px;min-height:82px}.hero-offer-card .countdown strong{font-size:30px}.hero-offer-card .countdown{gap:10px}.hero-offer-card p.countdown-note{font-size:12px}}
+@media(max-width:370px){.hero-offer-card .countdown>div{width:65px}.hero-offer-card .countdown{gap:8px}}
