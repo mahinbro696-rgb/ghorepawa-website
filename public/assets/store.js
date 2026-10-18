@@ -72,6 +72,7 @@ if (reviewsTrack) {
   const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
   if (!list || motion.matches || !('IntersectionObserver' in window) || !Element.prototype.animate) return;
   const cards = [...list.querySelectorAll('li')];
+  const lightMotion = window.matchMedia('(max-width: 900px), (pointer: coarse)').matches;
   const pendingTimers = new Set();
   const activeAnimations = new Set();
   function later(callback, delay) {
@@ -79,7 +80,7 @@ if (reviewsTrack) {
     pendingTimers.add(id);
   }
   function land(card) {
-    if (motion.matches) return;
+    if (motion.matches || lightMotion) return;
     const cloud = document.createElement('span');
     cloud.className = 'highlight-impact-cloud';
     cloud.setAttribute('aria-hidden', 'true');
@@ -98,13 +99,17 @@ if (reviewsTrack) {
       card.classList.remove('highlight-pending');
       if (motion.matches) return;
       card.classList.add('highlight-entering');
-      const animation = card.animate([
+      const frames = lightMotion ? [
+        {opacity: 0, transform: 'translateX(-24px)'},
+        {opacity: 1, transform: 'translateX(0)'}
+      ] : [
         {opacity: 0, transform: 'translateX(-54px) scale(.96)', offset: 0},
         {opacity: 1, transform: 'translateX(5px) scale(1.015)', offset: .65},
         {opacity: 1, transform: 'translateX(-3px) scale(.995)', offset: .78},
         {opacity: 1, transform: 'translateX(2px) scale(1.005)', offset: .88},
         {opacity: 1, transform: 'translateX(0) scale(1)', offset: 1}
-      ], {duration: 850, easing: 'cubic-bezier(.2,.75,.25,1)', fill: 'backwards'});
+      ];
+      const animation = card.animate(frames, {duration: lightMotion ? 480 : 850, easing: 'cubic-bezier(.2,.75,.25,1)', fill: 'backwards'});
       activeAnimations.add(animation);
       later(() => land(card), 550);
       animation.onfinish = animation.oncancel = () => {
@@ -139,7 +144,7 @@ if (reviewsTrack) {
 // Brief decorative haze for the headline arrival; never blocks interaction.
 (() => {
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-  if (reducedMotion.matches || !document.querySelector('.headline-banner')) return;
+  if (reducedMotion.matches || window.matchMedia('(max-width: 900px), (pointer: coarse)').matches || !document.querySelector('.headline-banner')) return;
   const haze = document.createElement('div');
   haze.className = 'headline-arrival-haze';
   haze.setAttribute('aria-hidden', 'true');
