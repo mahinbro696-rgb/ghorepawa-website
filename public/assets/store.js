@@ -89,18 +89,41 @@ function updateSessionTimer() {
 updateSessionTimer();
 setInterval(updateSessionTimer, 1000);
 
-// Native horizontal scrolling supports swipe, trackpad, keyboard and buttons.
-const reviewsTrack = document.querySelector('#reviews-track');
-if (reviewsTrack) {
-  for (const [id, direction] of [['#reviews-prev', -1], ['#reviews-next', 1]]) {
-    document.querySelector(id)?.addEventListener('click', () => {
-      const card = reviewsTrack.querySelector('.review-card');
-      if (!card) return;
-      const gap = parseFloat(getComputedStyle(reviewsTrack).gap) || 0;
-      reviewsTrack.scrollBy({left: direction * (card.getBoundingClientRect().width + gap), behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'});
-    });
+// Seamless left-to-right review motion with explicit pause and static fallback.
+(() => {
+  const track = document.querySelector('#reviews-track');
+  const button = document.querySelector('#reviews-pause');
+  const viewport = document.querySelector('.reviews-window');
+  if (!track || !button || !viewport) return;
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const originals = [...track.children];
+  for (const card of originals) {
+    const duplicate = card.cloneNode(true);
+    duplicate.classList.add('review-duplicate');
+    duplicate.setAttribute('aria-hidden', 'true');
+    track.append(duplicate);
   }
-}
+  function syncMotion() {
+    viewport.classList.toggle('is-moving', !reduced.matches);
+    button.hidden = reduced.matches;
+  }
+  button.addEventListener('click', () => {
+    const paused = viewport.classList.toggle('is-paused');
+    button.setAttribute('aria-pressed', String(paused));
+    button.textContent = paused ? 'অ্যানিমেশন চালু করুন' : 'অ্যানিমেশন থামান';
+  });
+  reduced.addEventListener('change', syncMotion);
+  syncMotion();
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver(entries => {
+      viewport.classList.toggle('is-offscreen', !entries[0].isIntersecting);
+    });
+    observer.observe(viewport);
+  }
+  document.addEventListener('visibilitychange', () => {
+    viewport.classList.toggle('is-background', document.hidden);
+  });
+})();
 
 // Scroll-triggered highlight entrances with decorative landing smoke.
 (() => {
