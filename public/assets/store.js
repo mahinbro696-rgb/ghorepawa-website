@@ -1,7 +1,9 @@
 const currency = value => '৳' + new Intl.NumberFormat('bn-BD').format(value);
 let quantity = 1;
 const update = () => {
-  document.querySelector('#quantity').value = quantity;
+  document.querySelector('#quantity').value = new Intl.NumberFormat('bn-BD').format(quantity);
+  const summaryQuantity = document.querySelector('#summary-quantity');
+  if (summaryQuantity) summaryQuantity.textContent = new Intl.NumberFormat('bn-BD').format(quantity);
   document.querySelector('#subtotal').textContent = currency(quantity * 399);
   document.querySelector('#total').textContent = currency(quantity * 399);
   document.querySelector('#minus').disabled = quantity <= 1;
@@ -11,7 +13,7 @@ document.querySelector('#minus').addEventListener('click', () => {quantity = Mat
 document.querySelector('#plus').addEventListener('click', () => {quantity = Math.min(10, quantity + 1); update();});
 document.querySelector('#order-form').addEventListener('submit', event => {
   event.preventDefault();
-  document.querySelector('#form-status').textContent = 'ফর্মের প্রিভিউ পরীক্ষা হয়েছে। এটি বাস্তব অর্ডার নয়; আপনার তথ্য পাঠানো বা সংরক্ষণ করা হয়নি।';
+  document.querySelector('#form-status').textContent = 'আপনার দেওয়া তথ্য যাচাই হয়েছে। অর্ডারটি এখনো পাঠানো বা সংরক্ষণ করা হয়নি। অর্ডার করতে নিচের নম্বরে কল করুন।';
 });
 update();
 
@@ -221,3 +223,13 @@ setInterval(updateSessionTimer, 1000);
     if (reducedMotion.matches) { clearTimeout(timer); cleanup(); }
   }, {once:true});
 })();
+
+// Accept Bengali digits and common spacing in Bangladeshi mobile numbers.
+const customerPhone = document.querySelector('#customer-phone');
+customerPhone?.addEventListener('input', () => {
+  customerPhone.value = customerPhone.value.replace(/[০-৯]/g, digit => String('০১২৩৪৫৬৭৮৯'.indexOf(digit))).replace(/[\s()-]/g, '');
+  customerPhone.setCustomValidity('');
+});
+customerPhone?.addEventListener('invalid', () => {
+  customerPhone.setCustomValidity(customerPhone.validity.valueMissing ? 'আপনার মোবাইল নম্বর লিখুন।' : 'সঠিক বাংলাদেশি মোবাইল নম্বর দিন, যেমন 01712345678।');
+});
