@@ -224,3 +224,16 @@ input:autofill{box-shadow:0 0 0 100px #1b3022 inset;-webkit-text-fill-color:#f1f
 .mobile-buy{background:#102118f5;border-color:#40533a;box-shadow:0 -8px 25px #0004;color:#f0dfad}
 .mobile-buy strong{background:#e5c47b;color:#17251c}
 @keyframes highlight-badge-glow{0%,100%{box-shadow:inset 0 1px 0 #ffffff12,0 0 0 0 #d6b66e00}50%{box-shadow:inset 0 1px 0 #ffffff12,0 0 0 5px #d6b66e22}}
+
+/* Scroll landing effects sit outside the text and never intercept taps. */
+.highlight-sound-toggle{display:block;margin:0 0 12px auto;padding:7px 12px;border:1px solid #655a37;border-radius:30px;background:#18291d;color:#efdbac;font:600 13px/1.6 'Noto Sans Bengali',sans-serif;cursor:pointer}
+.highlight-sound-toggle[aria-pressed="true"]{background:#34331e;border-color:#a38b51}
+.highlight-sound-toggle[hidden]{display:none}
+.hero-highlight-points li.highlight-pending{opacity:0;animation:none;transform:translateX(-32px)}
+.hero-highlight-points li.highlight-entering{animation:none}
+.hero-highlight-points li.highlight-hit{border-color:#bda56b}
+.highlight-impact-cloud{position:absolute;left:38px;top:50%;width:1px;height:1px;pointer-events:none;z-index:-1}
+.highlight-impact-cloud i{position:absolute;left:-20px;top:-20px;width:40px;height:40px;border-radius:50%;background:radial-gradient(circle,#e7d5ac80,#acbca52b 45%,transparent 72%);opacity:0;animation:highlight-smoke .9s ease-out forwards}
+.highlight-impact-cloud i:nth-child(even){width:52px;height:52px}
+@keyframes highlight-smoke{0%{opacity:0;transform:translate(0,0) scale(.3)}15%{opacity:.7}100%{opacity:0;transform:translate(var(--puff-x),var(--puff-y)) scale(2.6)}}
+@media(prefers-reduced-motion:reduce){.hero-highlight-points li.highlight-pending{opacity:1;transform:none}.highlight-impact-cloud{display:none}}
