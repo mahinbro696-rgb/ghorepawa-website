@@ -437,3 +437,9 @@ input:autofill{box-shadow:0 0 0 100px #1b3022 inset;-webkit-text-fill-color:#f1f
 @keyframes offer-label-arrival{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:translateY(0)}}
 @keyframes offer-label-light{0%,100%{text-shadow:0 0 7px #edc76b26}50%{text-shadow:0 0 17px #edc76b77}}
 @keyframes offer-red-light{0%,100%{opacity:1}50%{opacity:.8}}
+
+/* Supplied offer artwork stays intact at every screen size. */
+.offer-poster{padding-top:0;padding-bottom:26px}
+.offer-poster figure{margin:0;overflow:hidden;border:1px solid #a18c5059;border-radius:18px;background:#14251b;box-shadow:0 12px 32px #0003}
+.offer-poster img{display:block;width:100%;height:auto;max-width:100%;object-fit:contain}
+@media(max-width:700px){.offer-poster{padding-bottom:12px}.offer-poster figure{border-radius:12px}}
