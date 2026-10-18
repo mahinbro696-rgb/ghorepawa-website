@@ -275,3 +275,18 @@ input:autofill{box-shadow:0 0 0 100px #1b3022 inset;-webkit-text-fill-color:#f1f
 @media(prefers-reduced-motion:no-preference){.hero-offer-card .hero-offer-cta{animation:offer-cta-gold-glow 4.8s ease-in-out infinite}.hero-offer-card .hero-offer-cta::before{animation:offer-cta-glint 4.8s ease-in-out infinite}}
 @keyframes offer-cta-glint{0%,55%{transform:translateX(-130%) skewX(-12deg)}85%,100%{transform:translateX(130%) skewX(-12deg)}}
 @keyframes offer-cta-gold-glow{0%,55%,100%{box-shadow:0 0 0 4px #d6b3650b,0 8px 24px #d6b36520,inset 0 1px 0 #fff6}75%{box-shadow:0 0 0 4px #d6b36518,0 0 28px #d6b3653d,inset 0 1px 0 #fff8}}
+
+/* Minimal studio showcase: only the price and free delivery beneath the bottle. */
+.reference-image .product-stage.minimal-showcase{display:flex;flex-direction:column;justify-content:flex-start;gap:0;min-height:0;padding:32px 0 0;border:1px solid #6f6544;border-radius:26px;background:linear-gradient(155deg,#24392b 0%,#101d16 44%,#08120d 100%);box-shadow:0 22px 65px #0005,inset 0 1px 0 #f6dea726}
+.reference-image .product-stage.minimal-showcase::before{inset:0;background:linear-gradient(120deg,transparent 15%,#d8cb9a0d 30%,transparent 48%),radial-gradient(ellipse at 50% 40%,#afbd732b,transparent 60%);border-radius:0;z-index:0}
+.reference-image .product-stage.minimal-showcase::after{inset:10px;left:10px;bottom:10px;width:auto;height:auto;border:1px solid #e1c58312;border-radius:18px;background:none;box-shadow:none;filter:none;pointer-events:none;z-index:0}
+.reference-image .minimal-showcase img{height:410px;width:auto;max-width:none;margin:0 0 8px;filter:drop-shadow(0 20px 15px #0006)}
+.showcase-summary{position:relative;z-index:3;width:100%;margin-top:5px;padding:22px 20px 27px;text-align:center;border-top:1px solid #d9bd7633;background:linear-gradient(135deg,#192c20ed,#0d1b13);font-family:'Hind Siliguri','Noto Sans Bengali',sans-serif}
+.showcase-main-price{display:block;color:#f4d68a;font-size:64px;font-weight:700;line-height:1.25;letter-spacing:-1px;text-shadow:0 4px 24px #e5c47b12}
+.showcase-summary p{margin:10px 0 0;color:#dfebdb;font-size:25px;font-weight:600;line-height:1.6;text-wrap:balance}
+.showcase-summary p span{color:#f5dfa6;font-weight:700}
+@media(min-width:701px) and (max-width:1000px){.reference-image .minimal-showcase img{height:350px}.showcase-summary p{font-size:22px}.showcase-main-price{font-size:58px}}
+@media(max-width:700px){.reference-image .product-stage.minimal-showcase{padding-top:24px;border-radius:23px}.reference-image .minimal-showcase img{height:330px;margin-bottom:8px}.showcase-summary{padding:19px 16px 24px}.showcase-main-price{font-size:59px}.showcase-summary p{font-size:24px;margin-top:8px}}
+@media(max-width:370px){.reference-image .minimal-showcase img{height:295px}.showcase-main-price{font-size:54px}.showcase-summary p{font-size:22px}}
+@media(prefers-reduced-motion:no-preference){.reference-image .product-stage.minimal-showcase::before{animation:minimal-studio-light 7s ease-in-out infinite}}
+@keyframes minimal-studio-light{0%,100%{opacity:.55}50%{opacity:1}}
