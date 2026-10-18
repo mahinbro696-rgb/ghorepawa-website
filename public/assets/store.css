@@ -422,3 +422,18 @@ input:autofill{box-shadow:0 0 0 100px #1b3022 inset;-webkit-text-fill-color:#f1f
 .hero-offer-card p.countdown-note{font-size:12px;line-height:1.7;color:#b5c3b5;text-align:center;margin:12px auto 0;max-width:360px}
 @media(max-width:700px){.hero-offer-card .countdown-block{padding:16px 10px 12px;margin-block:18px}.hero-offer-card .countdown>div{width:74px;min-height:82px}.hero-offer-card .countdown strong{font-size:30px}.hero-offer-card .countdown{gap:10px}.hero-offer-card p.countdown-note{font-size:12px}}
 @media(max-width:370px){.hero-offer-card .countdown>div{width:65px}.hero-offer-card .countdown{gap:8px}}
+
+/* Large offer messaging and a lightweight red glow. */
+.hero-offer-card .hero-offer-title{font-size:24px;padding:8px 15px;color:#ffe7aa;line-height:1.5;text-shadow:0 0 12px #edc76b33}
+.hero-offer-card .countdown[hidden]{display:none}
+.hero-offer-card .countdown-title{font-size:25px;font-weight:700;color:#ff9692;line-height:1.6;text-shadow:0 0 12px #ff545655,0 0 22px #dc3e4233}
+.hero-offer-card p.countdown-note{font-family:'Hind Siliguri','Noto Sans Bengali',sans-serif;font-size:22px;font-weight:600;line-height:1.65;color:#f5dfae;margin:15px auto 0}
+@media(max-width:700px){.hero-offer-card .hero-offer-title{font-size:22px;padding:8px 12px}.hero-offer-card .countdown-title{font-size:24px}.hero-offer-card p.countdown-note{font-size:21px}}
+@media(max-width:370px){.hero-offer-card .hero-offer-top{gap:8px;flex-wrap:wrap}.hero-offer-card .hero-offer-title{font-size:21px}.hero-offer-card .countdown-title{font-size:23px}}
+@media(prefers-reduced-motion:no-preference){
+  .hero-offer-card .hero-offer-title{animation:offer-label-arrival .65s ease-out both,offer-label-light 3.6s ease-in-out .65s infinite}
+  .hero-offer-card .countdown-title{animation:offer-red-light 3.6s ease-in-out infinite}
+}
+@keyframes offer-label-arrival{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes offer-label-light{0%,100%{text-shadow:0 0 7px #edc76b26}50%{text-shadow:0 0 17px #edc76b77}}
+@keyframes offer-red-light{0%,100%{opacity:1}50%{opacity:.8}}
