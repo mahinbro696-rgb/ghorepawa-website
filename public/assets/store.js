@@ -37,10 +37,13 @@ document.addEventListener('visibilitychange', () => {
   });
 });
 
-// Configure a single absolute offer deadline; never restart it on page load.
-const offerCountdownBlock = document.querySelector('.countdown-block');
-const configuredOfferEnd = offerCountdownBlock?.dataset.offerEndsAt || '';
-const offerDeadline = configuredOfferEnd ? Date.parse(configuredOfferEnd) : NaN;
+// A clearly labeled session countdown restarts on reload and loops.
+const sessionCountdownDuration = 1 * 3600 + 5 * 60 + 39;
+const sessionCountdownStartedAt = performance.now();
+function sessionCountdownRemaining(now) {
+  const elapsed = Math.max(0, Math.floor((now - sessionCountdownStartedAt) / 1000));
+  return sessionCountdownDuration - (elapsed % sessionCountdownDuration);
+}
 const digits = value => new Intl.NumberFormat('bn-BD', {minimumIntegerDigits: 2, useGrouping: false}).format(value);
 const timerReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 let countdownInView = true;
@@ -75,33 +78,16 @@ function renderTimerValue(element, text) {
   const animation = previous.animate([{transform:'translateY(0)',opacity:1},{transform:'translateY(105%)',opacity:0}], options);
   animation.onfinish = animation.oncancel = () => previous.remove();
 }
-function updateOfferTimer() {
-  const title = offerCountdownBlock?.querySelector('.countdown-title');
-  if (!Number.isFinite(offerDeadline)) {
-    if (countdownElement) countdownElement.hidden = true;
-    if (title) title.textContent = 'অফার চলমান';
-    return false;
-  }
-  const remaining = Math.max(0, Math.ceil((offerDeadline - Date.now()) / 1000));
-  if (countdownElement) countdownElement.hidden = false;
-  if (title) title.textContent = remaining > 0 ? 'অফারটি থাকবে আর মাত্র' : 'অফারের সময় শেষ';
+function updateSessionTimer() {
+  const remaining = sessionCountdownRemaining(performance.now());
   const values = {hours: Math.floor(remaining / 3600), minutes: Math.floor(remaining % 3600 / 60), seconds: remaining % 60};
   for (const [unit, value] of Object.entries(values)) {
     const element = document.querySelector('#timer-' + unit);
     if (element) renderTimerValue(element, digits(value));
   }
-  if (remaining === 0) {
-    const note = offerCountdownBlock?.querySelector('.countdown-note');
-    if (note) note.textContent = 'পরবর্তী অফারের বিস্তারিত জানতে যোগাযোগ করুন';
-  }
-  return remaining > 0;
 }
-let offerTimerInterval;
-if (updateOfferTimer()) {
-  offerTimerInterval = setInterval(() => {
-    if (!updateOfferTimer()) clearInterval(offerTimerInterval);
-  }, 1000);
-}
+updateSessionTimer();
+setInterval(updateSessionTimer, 1000);
 
 // Native horizontal scrolling supports swipe, trackpad, keyboard and buttons.
 const reviewsTrack = document.querySelector('#reviews-track');
