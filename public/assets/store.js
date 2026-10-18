@@ -41,12 +41,45 @@ document.addEventListener('visibilitychange', () => {
 const countdownStart = Date.now();
 const demoDuration = 1 * 3600 + 24 * 60 + 33;
 const digits = value => new Intl.NumberFormat('bn-BD', {minimumIntegerDigits: 2, useGrouping: false}).format(value);
+const timerReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+let countdownInView = true;
+const countdownElement = document.querySelector('.countdown');
+if (countdownElement && 'IntersectionObserver' in window) {
+  const timerObserver = new IntersectionObserver(entries => {
+    countdownInView = entries[0].isIntersecting;
+  });
+  timerObserver.observe(countdownElement);
+}
+function renderTimerValue(element, text) {
+  let current = element.querySelector('.timer-value');
+  if (!current) {
+    current = document.createElement('span');
+    current.className = 'timer-value';
+    current.textContent = text;
+    element.replaceChildren(current);
+    return;
+  }
+  if (current.textContent === text) return;
+  const previousText = current.textContent;
+  current.textContent = text;
+  element.querySelector('.timer-previous')?.remove();
+  if (timerReducedMotion.matches || document.hidden || !countdownInView || !element.animate) return;
+  const previous = document.createElement('span');
+  previous.className = 'timer-previous';
+  previous.setAttribute('aria-hidden', 'true');
+  previous.textContent = previousText;
+  element.append(previous);
+  const options = {duration: 420, easing: 'cubic-bezier(.22,.7,.3,1)'};
+  current.animate([{transform:'translateY(-105%)',opacity:.3},{transform:'translateY(0)',opacity:1}], options);
+  const animation = previous.animate([{transform:'translateY(0)',opacity:1},{transform:'translateY(105%)',opacity:0}], options);
+  animation.onfinish = animation.oncancel = () => previous.remove();
+}
 function updateDemoTimer() {
   const remaining = Math.max(0, demoDuration - Math.floor((Date.now() - countdownStart) / 1000));
   const values = {hours: Math.floor(remaining / 3600), minutes: Math.floor(remaining % 3600 / 60), seconds: remaining % 60};
   for (const [unit, value] of Object.entries(values)) {
     const element = document.querySelector('#timer-' + unit);
-    if (element) element.textContent = digits(value);
+    if (element) renderTimerValue(element, digits(value));
   }
   if (remaining === 0) clearInterval(demoInterval);
 }
