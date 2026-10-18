@@ -71,3 +71,22 @@
 @media(prefers-reduced-motion:reduce){
   .hero-highlight-points li,.hero-highlight-points li::before{animation:none!important;transition:none!important}
 }
+
+/* Continuous, gentle mobile emphasis with staggered timing. */
+@media(max-width:700px) and (prefers-reduced-motion:no-preference){
+  .hero-highlight-points li{
+    animation:highlight-mobile-breathe 4.8s ease-in-out infinite;
+  }
+  .hero-highlight-points li:nth-child(2){animation-delay:-3.2s}
+  .hero-highlight-points li:nth-child(3){animation-delay:-1.6s}
+  .hero-highlight-points li::before{
+    animation:highlight-badge-glow 4.8s ease-in-out infinite;
+    animation-delay:inherit;
+  }
+  .hero-highlight-points:active li,
+  .hero-highlight-points:active li::before{animation-play-state:paused}
+}
+@keyframes highlight-mobile-breathe{
+  0%,65%,100%{transform:translateY(0);box-shadow:0 5px 18px #193d2705}
+  30%{transform:translateY(-2px);box-shadow:0 7px 20px #ba9a4d22}
+}
