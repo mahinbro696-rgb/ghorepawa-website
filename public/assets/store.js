@@ -66,54 +66,12 @@ if (reviewsTrack) {
   }
 }
 
-// Scroll-triggered highlight entrances with a short, optional synthesized impact.
+// Scroll-triggered highlight entrances with decorative landing smoke.
 (() => {
   const list = document.querySelector('.hero-highlight-points');
   const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
   if (!list || motion.matches || !('IntersectionObserver' in window) || !Element.prototype.animate) return;
   const cards = [...list.querySelectorAll('li')];
-  let audioContext;
-  let soundEnabled = false;
-  const AudioEngine = window.AudioContext || window.webkitAudioContext;
-  const button = document.createElement('button');
-  button.type = 'button';
-  button.className = 'highlight-sound-toggle';
-  button.setAttribute('aria-pressed', 'false');
-  button.textContent = '♪ সাউন্ড চালু করুন';
-  if (AudioEngine) list.before(button);
-
-  function impactSound() {
-    if (!soundEnabled || !audioContext || audioContext.state !== 'running' || document.hidden) return;
-    const now = audioContext.currentTime;
-    const tone = audioContext.createOscillator();
-    const gain = audioContext.createGain();
-    tone.type = 'sine';
-    tone.frequency.setValueAtTime(140, now);
-    tone.frequency.exponentialRampToValueAtTime(42, now + .16);
-    gain.gain.setValueAtTime(.0001, now);
-    gain.gain.exponentialRampToValueAtTime(.12, now + .012);
-    gain.gain.exponentialRampToValueAtTime(.0001, now + .23);
-    tone.connect(gain);
-    gain.connect(audioContext.destination);
-    tone.start(now);
-    tone.stop(now + .24);
-    tone.onended = () => { tone.disconnect(); gain.disconnect(); };
-  }
-  button.addEventListener('click', async () => {
-    if (soundEnabled) {
-      soundEnabled = false;
-    } else {
-      try {
-        audioContext ||= new AudioEngine();
-        await audioContext.resume();
-        soundEnabled = audioContext.state === 'running';
-      } catch { soundEnabled = false; }
-    }
-    button.setAttribute('aria-pressed', String(soundEnabled));
-    button.textContent = soundEnabled ? '♪ সাউন্ড চালু আছে · বন্ধ করুন' : '♪ সাউন্ড চালু করুন';
-    if (soundEnabled) impactSound();
-  });
-
   const pendingTimers = new Set();
   const activeAnimations = new Set();
   function later(callback, delay) {
@@ -133,7 +91,6 @@ if (reviewsTrack) {
     }
     card.append(cloud);
     card.classList.add('highlight-hit');
-    impactSound();
     later(() => { cloud.remove(); card.classList.remove('highlight-hit'); }, 1000);
   }
   function enter(card, delay) {
@@ -176,9 +133,5 @@ if (reviewsTrack) {
       card.classList.remove('highlight-pending', 'highlight-entering', 'highlight-hit');
       card.querySelector('.highlight-impact-cloud')?.remove();
     });
-    soundEnabled = false;
-    button.setAttribute('aria-pressed', 'false');
-    button.textContent = '♪ সাউন্ড চালু করুন';
-    button.hidden = true;
   });
 })();
