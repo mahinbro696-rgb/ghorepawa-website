@@ -515,3 +515,13 @@ input:autofill{box-shadow:0 0 0 100px #1b3022 inset;-webkit-text-fill-color:#f1f
 .checkout-support a span{font:600 18px/1.7 Arial,sans-serif}
 @media(max-width:700px){.order-grid.order-only{padding-block:30px}.checkout-card{padding:25px 20px;border-radius:21px}.checkout-heading h2{font-size:30px}.checkout-heading p{font-size:17px}.checkout-card .form-row{grid-template-columns:1fr;gap:0}.checkout-group{margin-bottom:24px}.checkout-card .checkout-package{padding:14px;gap:12px}.checkout-product{gap:10px}.checkout-product strong{font-size:19px}.checkout-card .quantity button{width:34px}.checkout-card .quantity output{min-width:31px}.checkout-submit{font-size:22px}.checkout-summary{padding:16px}.checkout-card .totals .grand{font-size:24px}}
 @media(max-width:370px){.checkout-card{padding:22px 16px}.checkout-card .checkout-package{align-items:flex-start;flex-direction:column}.checkout-card .quantity{align-self:flex-end}.checkout-product img{width:50px;height:68px}.checkout-submit{font-size:20px}}
+
+/* Clearer Bengali letterforms and quantity digits throughout checkout. */
+.checkout-card,.checkout-card input,.checkout-card textarea,.checkout-card .checkout-product small,.checkout-card .quantity output,.checkout-card .checkout-submit{font-family:'Noto Sans Bengali',sans-serif}
+.checkout-card .quantity output{font-size:22px;font-weight:600;line-height:1.6;min-width:42px;font-variant-numeric:tabular-nums}
+.checkout-card .checkout-group legend>span{font-size:15px;font-weight:600}
+.checkout-card .checkout-heading h2{font-weight:700;letter-spacing:0}
+.checkout-card label{font-weight:600}
+.checkout-card input,.checkout-card textarea{font-size:17px;font-weight:400}
+.checkout-card .checkout-submit{font-size:20px;font-weight:700}
+@media(max-width:700px){.checkout-card .quantity output{min-width:36px;font-size:21px}.checkout-card .checkout-submit{font-size:19px}}
