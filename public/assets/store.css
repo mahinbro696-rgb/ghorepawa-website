@@ -443,3 +443,6 @@ input:autofill{box-shadow:0 0 0 100px #1b3022 inset;-webkit-text-fill-color:#f1f
 .offer-poster figure{margin:0;overflow:hidden;border:1px solid #a18c5059;border-radius:18px;background:#14251b;box-shadow:0 12px 32px #0003}
 .offer-poster img{display:block;width:100%;height:auto;max-width:100%;object-fit:contain}
 @media(max-width:700px){.offer-poster{padding-bottom:12px}.offer-poster figure{border-radius:12px}}
+
+/* Center the standalone order form after removing its introduction column. */
+.order-grid.order-only{grid-template-columns:minmax(0,1fr);max-width:680px;gap:0}
