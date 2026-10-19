@@ -1,5 +1,6 @@
 import {betterAuth} from 'better-auth';
-import {admin} from 'better-auth/plugins';
+import {admin} from 'better-auth/plugins/admin';
+import {twoFactor} from 'better-auth/plugins/two-factor';
 import {createAuthMiddleware,APIError} from 'better-auth/api';
 import {getPool} from './db.mjs';
 let instance;
@@ -18,7 +19,7 @@ export function getAuth() {
     verification:{modelName:'team_auth_verifications'},
     emailAndPassword:{enabled:true,minPasswordLength:12,maxPasswordLength:128,autoSignIn:false},
     rateLimit:{enabled:true,storage:'database',window:60,max:30,modelName:'team_auth_rate_limits'},
-    plugins:[admin()],
+    plugins:[admin(),twoFactor({issuer:'Ever Strong',twoFactorTable:'team_auth_two_factor'})],
     hooks:{before:createAuthMiddleware(async ctx=>{
       if(ctx.path==='/sign-up/email' && ctx.headers?.get('x-internal-provision') !== process.env.BETTER_AUTH_SECRET) throw new APIError('FORBIDDEN',{message:'অ্যাকাউন্ট শুধু অ্যাডমিন তৈরি করতে পারবেন।'});
     })},

@@ -1,6 +1,7 @@
 import {getMigrations} from 'better-auth/db/migration';
 import {getAuth} from './auth.mjs';
 import {transaction} from './db.mjs';
+import {upgradeSchema} from './upgrade.mjs';
 import {bootstrapOwner} from './bootstrap.mjs';
 let ready;
 export function ensureSchema(){
@@ -42,6 +43,7 @@ export function ensureSchema(){
     await client.query(`CREATE TABLE IF NOT EXISTS request_limits (key text PRIMARY KEY,hits integer NOT NULL,expires_at timestamptz NOT NULL)`);
     await client.query('INSERT INTO shop_schema(version) VALUES(1)');
     });
+    await upgradeSchema();
     await bootstrapOwner();
   })().catch(error=>{ready=null;throw error;});
 }

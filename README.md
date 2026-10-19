@@ -42,3 +42,13 @@ Schema and auth migrations execute once per schema version using a database advi
 ## Hosting
 
 Vercel config builds the static site and Node functions together in Singapore. A future move to ordinary PHP-only shared hosting requires a compatible Node runtime or a backend migration; uploading server modules to a public document root does not run them. Search indexing remains disabled pending the seller's launch decision.
+
+## Security and order retention
+
+- `/admin` is the owner login; `/moderator` is a separate team login entry. Server authorization always uses the stored role, never the URL.
+- Settings supports Google Authenticator TOTP enrollment (locally generated QR), mandatory enrollment verification, password + TOTP login, one-use recovery codes, and password/second-factor protected disable. Store recovery codes offline.
+- Migration version 2 is additive. PostgreSQL triggers reject DELETE/TRUNCATE on orders, members and audit history, reject audit edits, and preserve original order/customer details. Cancellation and staff disabling retain records. A database owner can still alter/drop database objects; these protections are not a disaster-recovery guarantee.
+- Settings provides an admin-only consistent JSON export of all orders, team members and audit records; no credentials are exported. This is a business-data archive, not a full database backup. No automated offsite backup has been provisioned. Configure independent encrypted PostgreSQL backups and test restoration before relying on permanent retention. Provider restoration windows depend on the subscribed database plan.
+- Storefront retries transient failures using the same persisted idempotency key; success appears only after a committed database insert. Requests that never reach the server cannot be guaranteed.
+- Team/account creation is transactional. Order mutations use row locks, role checks and version checks. Dashboard refreshes every 30 seconds when idle; active forms and selections are not interrupted.
+- `npm test` includes an isolated embedded PostgreSQL workflow test (PGlite), exercising real auth and SQL. It never sends owner credentials or test data to the live service. This supplements, rather than replaces, deployment/user acceptance testing.

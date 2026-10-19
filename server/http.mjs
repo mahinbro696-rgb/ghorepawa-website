@@ -26,7 +26,7 @@ export function endpoint(methods,handler){return async(req,res)=>{
   }catch(error){
     const status=Number.isInteger(error.status)?error.status:({UNAUTHORIZED:401,FORBIDDEN:403,BAD_REQUEST:400,CONFLICT:409,TOO_MANY_REQUESTS:429}[error.status]||500);
     if(status>=500)console.error('API failure',{type:error.name,code:error.code||'unknown'});
-    if(!res.headersSent)res.status(status).json({error:status>=500?'সার্ভারের সঙ্গে যোগাযোগে সমস্যা হয়েছে। আবার চেষ্টা করুন।':error.message});
+    if(!res.headersSent)res.status(status).json({error:status>=500?'সার্ভারের সঙ্গে যোগাযোগে সমস্যা হয়েছে। আবার চেষ্টা করুন।':error.message});else res.destroy?.();
   }
 };}
 export async function actor(req,adminOnly=false){
@@ -36,7 +36,7 @@ export async function actor(req,adminOnly=false){
   const member=rows[0];
   if(!member||member.status!=='active')throw new AppError(403,'অ্যাকাউন্টটি সক্রিয় নেই। অ্যাডমিনের সঙ্গে যোগাযোগ করুন।');
   if(adminOnly&&member.role!=='admin')throw new AppError(403,'শুধু অ্যাডমিন এই কাজ করতে পারবেন।');
-  return member;
+  return {...member,twoFactorEnabled:!!session.user.twoFactorEnabled};
 }
 export const digest=value=>createHash('sha256').update(value).digest('hex');
 export function secretMatches(value,hash){if(typeof value!=='string'||!hash)return false;const a=Buffer.from(digest(value.trim()));const b=Buffer.from(hash);return a.length===b.length&&timingSafeEqual(a,b);}

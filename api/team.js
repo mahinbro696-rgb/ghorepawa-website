@@ -1,6 +1,8 @@
 import {endpoint,actor,body,headers,rate} from '../server/http.mjs';
 import {transaction,getPool} from '../server/db.mjs';
-import {provisionUser,getAuth} from '../server/auth.mjs';
+import {getAuth,staffEmail} from '../server/auth.mjs';
+import {hashPassword} from 'better-auth/crypto';
+import {randomUUID} from 'node:crypto';
 import {AppError,text,username,password} from '../server/domain.mjs';
 export default endpoint(['GET','POST','PATCH'],async(req,res)=>{
   const admin=await actor(req,true);
@@ -18,12 +20,13 @@ export default endpoint(['GET','POST','PATCH'],async(req,res)=>{
     await rate(req,'team-create',50,3600,admin.id);
     const input={name:text(data.name,'নাম',2,100),username:username(data.username),password:password(data.password)};
     if((await getPool().query('SELECT 1 FROM team_members WHERE username=$1',[input.username])).rows.length)throw new AppError(409,'এই ইউজার আইডি ইতোমধ্যে ব্যবহার হচ্ছে।');
-    let result;
-    try{result=await provisionUser(input);}catch{throw new AppError(409,'অ্যাকাউন্ট তৈরি হয়নি। ইউজার আইডি পরিবর্তন করে চেষ্টা করুন।');}
-    await transaction(async client=>{
-      await client.query("INSERT INTO team_members(id,username,name,role,status) VALUES($1,$2,$3,'moderator','pending')",[result.user.id,input.username,input.name]);
-      await client.query("INSERT INTO team_events(actor_id,target_id,kind) VALUES($1,$2,'member-created')",[admin.id,result.user.id]);
-    });
+    const hash=await hashPassword(input.password),id=randomUUID();
+    try{await transaction(async client=>{
+      await client.query(`INSERT INTO team_auth_users(id,name,email,"emailVerified","createdAt","updatedAt",role) VALUES($1,$2,$3,false,now(),now(),'user')`,[id,input.name,staffEmail(input.username)]);
+      await client.query(`INSERT INTO team_auth_accounts(id,"accountId","providerId","userId",password,"createdAt","updatedAt") VALUES($1,$2,'credential',$2,$3,now(),now())`,[randomUUID(),id,hash]);
+      await client.query("INSERT INTO team_members(id,username,name,role,status) VALUES($1,$2,$3,'moderator','pending')",[id,input.username,input.name]);
+      await client.query("INSERT INTO team_events(actor_id,target_id,kind) VALUES($1,$2,'member-created')",[admin.id,id]);
+    });}catch(error){if(error.code==='23505')throw new AppError(409,'এই ইউজার আইডি ইতোমধ্যে ব্যবহার হচ্ছে।');throw error;}
     return res.status(201).json({ok:true});
   }
   const id=text(data.id,'সদস্য',1,100);

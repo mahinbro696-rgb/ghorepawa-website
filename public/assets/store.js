@@ -46,13 +46,19 @@ orderForm.addEventListener('submit', async event => {
   try {
   const payload = {...Object.fromEntries(new FormData(orderForm)), quantity};
   const fingerprint = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify(payload))))).map(n => n.toString(16).padStart(2, '0')).join('');
-  try { orderAttempt = JSON.parse(sessionStorage.getItem('ever-strong-order-attempt') || 'null'); } catch {}
+  try { orderAttempt = JSON.parse(localStorage.getItem('ever-strong-order-attempt') || 'null'); } catch {}
   if (!orderAttempt || orderAttempt.fingerprint !== fingerprint) orderAttempt = {key:crypto.randomUUID(), fingerprint};
-  try { sessionStorage.setItem('ever-strong-order-attempt', JSON.stringify(orderAttempt)); } catch {}
-    const response = await fetch('/api/orders', {
+  try { localStorage.setItem('ever-strong-order-attempt', JSON.stringify(orderAttempt)); } catch {}
+    let response;
+    for(let attempt=0;attempt<3;attempt++){
+     try{response = await fetch('/api/orders', {
       method:'POST', headers:{'Content-Type':'application/json','Idempotency-Key':orderAttempt.key},
       body:JSON.stringify(payload), signal:typeof AbortSignal.timeout === 'function' ? AbortSignal.timeout(45000) : undefined
     });
+     if(response.status<500)break;
+     }catch(error){if(attempt===2)throw error;}
+     if(attempt<2){formStatus.textContent='সংযোগে দেরি হচ্ছে। আপনার অর্ডারটি আবার জমা দেওয়ার চেষ্টা চলছে…';await new Promise(resolve=>setTimeout(resolve,1000*(attempt+1)));}
+    }
     const result = await response.json();
     if (!response.ok) throw new Error(result.error || 'অর্ডার জমা হয়নি। আবার চেষ্টা করুন।');
     formStatus.textContent = 'আপনার অর্ডারের অনুরোধ জমা হয়েছে। অর্ডার নম্বর ES-' + result.reference + '। আমাদের প্রতিনিধি ফোন করে নিশ্চিত করবেন।';
