@@ -46,25 +46,26 @@ jobs:
         run: python tests/ui/portal-browser.py
       - name: Package deployment update
         run: python scripts/package_portal.py
-      - name: Commit validated source only to feature branch
+      - name: Commit validated application source only to feature branch
         shell: bash
         run: |
           git rm -r .portal-transport
-          git rm .github/workflows/portal-test-runtime.yml .github/workflows/portal-apply-upgrade.yml
+          git restore --source=HEAD --staged --worktree .github/workflows
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git commit -m 'Build portal v2: products, inventory, notifications, navy UI and tested workflows'
           git push origin HEAD:refs/heads/feature/portal-management-v2
-      - name: Archive reviewed source tree
+      - name: Archive reviewed source tree and test evidence
         if: always()
         run: |
+          mkdir -p portal-ci-output
           TREE=$(git write-tree)
-          git archive --format=tar.gz --output=/tmp/portal-reviewed-source.tar.gz "$TREE"
+          git archive --format=tar.gz --output=portal-ci-output/portal-reviewed-source.tar.gz "$TREE"
+          if [ -d .test-results/screenshots ]; then cp -r .test-results/screenshots portal-ci-output/; fi
+          if [ -f .test-results/ghorepawa-portal-v2-update.zip ]; then cp .test-results/ghorepawa-portal-v2-update.zip portal-ci-output/; fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: portal-upgrade-validation
-          path: |
-            /tmp/portal-reviewed-source.tar.gz
-            .test-results/
+          path: portal-ci-output/
           retention-days: 7
