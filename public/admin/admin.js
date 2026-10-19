@@ -2,9 +2,11 @@
 const app=document.querySelector('#app');
 const dialog=document.querySelector('#order-dialog');
 const memberDialog=document.querySelector('#member-dialog');
-const money=n=>'৳'+new Intl.NumberFormat('bn-BD').format(n||0);
-const number=n=>new Intl.NumberFormat('bn-BD').format(n||0);
-const date=s=>s?new Intl.DateTimeFormat('bn-BD',{timeZone:'Asia/Dhaka',dateStyle:'medium',timeStyle:'short'}).format(new Date(s)):'—';
+const bnNumber=new Intl.NumberFormat('bn-BD');
+const bdDate=new Intl.DateTimeFormat('bn-BD',{timeZone:'Asia/Dhaka',dateStyle:'medium',timeStyle:'short'});
+const money=n=>'৳'+bnNumber.format(n||0);
+const number=n=>bnNumber.format(n||0);
+const date=s=>s?bdDate.format(new Date(s)):'—';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const statusLabels={new:'নতুন',assigned:'বরাদ্দ দেওয়া',callback:'পুনরায় কল',confirmed:'চূড়ান্ত যাচাই বাকি',approved:'অনুমোদিত',unapproved:'অননুমোদিত',dispatched:'কুরিয়ারে পাঠানো',delivered:'ডেলিভারি সম্পন্ন',cancelled:'বাতিল'};
 const assignable=o=>['new','assigned','callback','unapproved'].includes(o.status);
@@ -105,4 +107,4 @@ let pollBusy=false;
 setInterval(async()=>{
  if(pollBusy||!user||document.hidden||!['orders','review','unapproved','callbacks'].includes(view)||dialog.open||memberDialog.open||selected.size||['INPUT','SELECT','TEXTAREA','BUTTON'].includes(document.activeElement?.tagName))return;
  pollBusy=true;try{await loadCurrent();}finally{pollBusy=false;}
-},30000);
+},45000);
