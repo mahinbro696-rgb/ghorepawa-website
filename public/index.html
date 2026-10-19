@@ -1,16 +1,16 @@
 <!doctype html>
 <html lang="bn">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>Ever Strong — ঘরে পাওয়া</title>
   <meta name="description" content="Ever Strong। অফার মূল্য ৩৯৯ টাকা, ফ্রি ডেলিভারি।">
   <meta name="robots" content="noindex,nofollow">
   <meta name="theme-color" content="#09120e">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="assets/store.css?v=floating-actions-19">
+  <link rel="stylesheet" href="assets/store.css?v=bugfix-20">
   <link rel="stylesheet" href="assets/hero-photo.css">
-  <script src="assets/store.js?v=professional-checkout-16" defer></script>
+  <script src="assets/store.js?v=bugfix-20" defer></script>
 </head>
 <body>
   <main>
@@ -73,7 +73,7 @@
       </div>
     </section>
     <section class="order-section" id="order"><div class="wrap order-grid order-only section">
-      <form id="order-form" class="order-card checkout-card">
+      <form id="order-form" class="order-card checkout-card" method="post">
         <div class="checkout-heading"><span class="checkout-kicker">আপনার অর্ডার</span><h2>অর্ডারের তথ্য দিন</h2><p>নাম, মোবাইল নম্বর ও ঠিকানা সঠিকভাবে পূরণ করুন।</p></div>
         <fieldset class="checkout-group"><legend><span>০১</span> পণ্য ও পরিমাণ</legend>
           <div class="package checkout-package">
@@ -90,8 +90,9 @@
         <fieldset class="checkout-group checkout-summary"><legend><span>০৩</span> অর্ডারের হিসাব</legend>
           <div class="totals"><div><span>Ever Strong × <span id="summary-quantity">১</span></span><span id="subtotal">৳৩৯৯</span></div><div><span>ডেলিভারি চার্জ</span><span class="summary-free">ফ্রি</span></div><div class="grand"><strong>সর্বমোট</strong><strong id="total">৳৩৯৯</strong></div></div>
         </fieldset>
-        <button class="button submit checkout-submit" type="submit">অর্ডারের তথ্য যাচাই করুন <span aria-hidden="true">→</span></button>
-        <p id="form-status" role="status" aria-live="polite"></p>
+        <button class="button submit checkout-submit" type="submit" disabled>অর্ডারের তথ্য যাচাই করুন <span aria-hidden="true">→</span></button>
+        <p id="form-status" role="status" aria-live="polite" tabindex="-1"></p>
+        <noscript><p>অর্ডার করতে <a href="tel:+8809639224727">+8809639224727</a> নম্বরে কল করুন।</p></noscript>
       </form>
     </div></section>
     <section class="offer-poster closing-poster wrap" aria-label="Ever Strong প্রচারচিত্র">

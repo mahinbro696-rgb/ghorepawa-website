@@ -540,3 +540,23 @@ input:autofill{box-shadow:0 0 0 100px #1b3022 inset;-webkit-text-fill-color:#f1f
 .closing-poster{padding-bottom:150px}
 @media(hover:hover){.floating-actions .floating-order:hover{background:#ffe6a6}.floating-actions .floating-call:hover{background:#1c704d}}
 @media(max-width:700px){.floating-actions{right:max(12px,env(safe-area-inset-right));bottom:calc(12px + env(safe-area-inset-bottom));gap:8px}.floating-actions .floating-action{min-height:48px;padding:11px 14px;font-size:14px;border-radius:13px;gap:8px}.floating-action svg{width:20px;height:20px;flex-basis:20px}.closing-poster{padding-bottom:145px}}
+
+
+/* Keep form controls and offer content usable at narrow widths. */
+.checkout-card .checkout-package{flex-wrap:wrap}
+.checkout-card .quantity{flex-shrink:0;margin-left:auto}
+.checkout-card .quantity button{width:44px;height:44px}
+.checkout-card input,.checkout-card textarea{scroll-margin-block:100px 165px}
+.checkout-card .checkout-submit,#form-status{scroll-margin-bottom:165px}
+#form-status a{display:inline-block;text-decoration:underline;font-family:Arial,sans-serif;overflow-wrap:anywhere}
+#order{scroll-margin-top:18px}
+.hero-offer-top,.hero-offer-card .hero-offer-price{flex-wrap:wrap}
+.hero-offer-card .countdown>div{min-width:0;flex:0 1 80px}
+.hero-offer-card .hero-price-current strong{max-width:100%}
+@media(min-width:701px) and (max-width:900px){.reference-hero{grid-template-columns:minmax(0,1fr);gap:28px}.reference-image{grid-row:1}.reference-image .product-stage{max-width:560px;margin-inline:auto}.hero-offer-card{max-width:none}}
+@media(max-width:700px){html{scroll-padding-bottom:155px}.checkout-card .checkout-package{gap:14px}.checkout-product{flex-wrap:wrap}.checkout-card .quantity button{width:44px;height:44px}.hero-offer-card .hero-price-current strong{animation:none}}
+/* Pausing reviews restores a normal swipeable strip of the five originals. */
+.reviews-window.is-paused .reviews-track{width:auto;overflow-x:auto;animation:none;transform:none;scroll-snap-type:x mandatory}
+.reviews-window.is-paused .review-duplicate{display:none}
+.motion-offscreen,.motion-offscreen *,.motion-offscreen::before,.motion-offscreen::after,.motion-offscreen *::before,.motion-offscreen *::after,
+.page-background *,.page-background *::before,.page-background *::after{animation-play-state:paused!important}

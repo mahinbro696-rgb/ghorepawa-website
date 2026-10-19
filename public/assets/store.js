@@ -1,6 +1,12 @@
+// Support older mobile browsers as well as current MediaQueryList APIs.
+function onMediaChange(query, callback, options) {
+  if (query.addEventListener) query.addEventListener('change', callback, options);
+  else if (query.addListener) query.addListener(callback);
+}
 const currency = value => '৳' + new Intl.NumberFormat('bn-BD').format(value);
 let quantity = 1;
 const update = () => {
+  document.querySelector('#form-status')?.replaceChildren();
   document.querySelector('#quantity').value = new Intl.NumberFormat('bn-BD').format(quantity);
   const summaryQuantity = document.querySelector('#summary-quantity');
   if (summaryQuantity) summaryQuantity.textContent = new Intl.NumberFormat('bn-BD').format(quantity);
@@ -11,10 +17,31 @@ const update = () => {
 };
 document.querySelector('#minus').addEventListener('click', () => {quantity = Math.max(1, quantity - 1); update();});
 document.querySelector('#plus').addEventListener('click', () => {quantity = Math.min(10, quantity + 1); update();});
-document.querySelector('#order-form').addEventListener('submit', event => {
-  event.preventDefault();
-  document.querySelector('#form-status').textContent = 'আপনার দেওয়া তথ্য যাচাই হয়েছে। অর্ডারটি এখনো পাঠানো বা সংরক্ষণ করা হয়নি। অর্ডার করতে নিচের নম্বরে কল করুন।';
+const orderForm = document.querySelector('#order-form');
+const formStatus = document.querySelector('#form-status');
+const textFields = [...orderForm.querySelectorAll('input:not([type="tel"]), textarea')];
+function validateTextField(field) {
+  field.setCustomValidity(field.value.trim() ? '' : 'অনুগ্রহ করে এই তথ্যটি লিখুন। শুধু স্পেস গ্রহণযোগ্য নয়।');
+}
+textFields.forEach(field => {
+  field.addEventListener('input', () => validateTextField(field));
+  field.addEventListener('blur', () => { field.value = field.value.trim(); validateTextField(field); });
 });
+orderForm.addEventListener('input', () => formStatus.replaceChildren());
+orderForm.addEventListener('submit', event => {
+  event.preventDefault();
+  textFields.forEach(field => { field.value = field.value.trim(); validateTextField(field); });
+  if (!orderForm.reportValidity()) return;
+  const message = document.createElement('span');
+  message.textContent = 'তথ্য যাচাই হয়েছে। অর্ডারটি এখনো জমা হয়নি। অর্ডার সম্পন্ন করতে কল করুন: ';
+  const call = document.createElement('a');
+  call.href = 'tel:+8809639224727';
+  call.textContent = '+8809639224727';
+  formStatus.replaceChildren(message, call);
+  formStatus.focus({preventScroll: true});
+  formStatus.scrollIntoView({block: 'center', behavior: 'auto'});
+});
+orderForm.querySelector('[type="submit"]').disabled = false;
 update();
 
 // Reveal content once; preserve full visibility without JavaScript or reduced motion.
@@ -32,16 +59,21 @@ if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-mot
     observer.observe(element);
   });
 }
-// Pause decorative animation in background tabs.
-document.addEventListener('visibilitychange', () => {
-  document.querySelectorAll('.product-stage img, .orbit-one').forEach(element => {
-    element.style.animationPlayState = document.hidden ? 'paused' : 'running';
-  });
-});
+// Pause decorative sections outside the viewport and in background tabs.
+const animatedSections = document.querySelectorAll('.headline-banner, .hero-highlight-points, .hero-offer-card, .product-stage');
+const syncBackgroundMotion = () => document.documentElement.classList.toggle('page-background', document.hidden);
+document.addEventListener('visibilitychange', syncBackgroundMotion);
+syncBackgroundMotion();
+if ('IntersectionObserver' in window) {
+  const motionObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => entry.target.classList.toggle('motion-offscreen', !entry.isIntersecting));
+  }, {rootMargin: '80px'});
+  animatedSections.forEach(section => motionObserver.observe(section));
+}
 
-// A clearly labeled session countdown restarts on reload and loops.
+// A session countdown restarts on reload and loops.
 const sessionCountdownDuration = 1 * 3600 + 5 * 60 + 39;
-const sessionCountdownStartedAt = performance.now();
+const sessionCountdownStartedAt = Date.now();
 function sessionCountdownRemaining(now) {
   const elapsed = Math.max(0, Math.floor((now - sessionCountdownStartedAt) / 1000));
   return sessionCountdownDuration - (elapsed % sessionCountdownDuration);
@@ -81,7 +113,7 @@ function renderTimerValue(element, text) {
   animation.onfinish = animation.oncancel = () => previous.remove();
 }
 function updateSessionTimer() {
-  const remaining = sessionCountdownRemaining(performance.now());
+  const remaining = sessionCountdownRemaining(Date.now());
   const values = {hours: Math.floor(remaining / 3600), minutes: Math.floor(remaining % 3600 / 60), seconds: remaining % 60};
   for (const [unit, value] of Object.entries(values)) {
     const element = document.querySelector('#timer-' + unit);
@@ -89,7 +121,8 @@ function updateSessionTimer() {
   }
 }
 updateSessionTimer();
-setInterval(updateSessionTimer, 1000);
+setInterval(() => { if (!document.hidden) updateSessionTimer(); }, 1000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) updateSessionTimer(); });
 
 // Seamless left-to-right review motion with explicit pause and static fallback.
 (() => {
@@ -111,10 +144,11 @@ setInterval(updateSessionTimer, 1000);
   }
   button.addEventListener('click', () => {
     const paused = viewport.classList.toggle('is-paused');
+    if (!paused) track.scrollLeft = 0;
     button.setAttribute('aria-pressed', String(paused));
     button.textContent = paused ? 'অ্যানিমেশন চালু করুন' : 'অ্যানিমেশন থামান';
   });
-  reduced.addEventListener('change', syncMotion);
+  onMediaChange(reduced, syncMotion);
   syncMotion();
   if ('IntersectionObserver' in window) {
     const observer = new IntersectionObserver(entries => {
@@ -189,7 +223,7 @@ setInterval(updateSessionTimer, 1000);
     }
   }, {threshold: .2, rootMargin: '0px 0px -6% 0px'});
   cards.forEach(card => { card.classList.add('highlight-pending'); observer.observe(card); });
-  motion.addEventListener('change', () => {
+  onMediaChange(motion, () => {
     if (!motion.matches) return;
     observer.disconnect();
     pendingTimers.forEach(clearTimeout);
@@ -219,7 +253,7 @@ setInterval(updateSessionTimer, 1000);
   document.body.append(haze);
   const cleanup = () => haze.remove();
   const timer = setTimeout(cleanup, 2200);
-  reducedMotion.addEventListener('change', () => {
+  onMediaChange(reducedMotion, () => {
     if (reducedMotion.matches) { clearTimeout(timer); cleanup(); }
   }, {once:true});
 })();
