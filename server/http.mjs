@@ -12,10 +12,11 @@ export function protectOrigin(req){
   if(incoming && incoming!==origin(req))throw new AppError(403,'অনুরোধের উৎস সঠিক নয়।');
   if(!String(req.headers['content-type']||'').startsWith('application/json'))throw new AppError(415,'JSON অনুরোধ প্রয়োজন।');
 }
-export async function body(req){
-  if(Number(req.headers['content-length']||0)>12000)throw new AppError(413,'অনুরোধটি খুব বড়।');
-  if(req.body!==undefined){let b=req.body;if(typeof b==='string'){try{b=JSON.parse(b)}catch{throw new AppError(400,'তথ্যের বিন্যাস সঠিক নয়।')}}if(JSON.stringify(b).length>12000)throw new AppError(413,'অনুরোধটি খুব বড়।');if(!b||typeof b!=='object'||Array.isArray(b))throw new AppError(400,'তথ্যের বিন্যাস সঠিক নয়।');return b;}
-  let raw='';for await(const chunk of req){raw+=chunk;if(raw.length>12000)throw new AppError(413,'অনুরোধটি খুব বড়।');}
+export async function body(req,maxBytes=12000){
+  if(Number(req.headers['content-length']||0)>maxBytes)throw new AppError(413,'অনুরোধটি খুব বড়।');
+  if(req.body!==undefined){let b=req.body;if(typeof b==='string'){try{b=JSON.parse(b)}catch{throw new AppError(400,'তথ্যের বিন্যাস সঠিক নয়।')}}if(Buffer.byteLength(JSON.stringify(b))>maxBytes)throw new AppError(413,'অনুরোধটি খুব বড়।');if(!b||typeof b!=='object'||Array.isArray(b))throw new AppError(400,'তথ্যের বিন্যাস সঠিক নয়।');return b;}
+  const chunks=[];let size=0;for await(const chunk of req){const buf=Buffer.isBuffer(chunk)?chunk:Buffer.from(chunk);size+=buf.length;if(size>maxBytes)throw new AppError(413,'Request is too large.');chunks.push(buf);}
+  const raw=Buffer.concat(chunks).toString('utf8');
   try{const result=JSON.parse(raw||'{}');if(!result||typeof result!=='object'||Array.isArray(result))throw Error();return result;}catch{throw new AppError(400,'তথ্যের বিন্যাস সঠিক নয়।');}
 }
 export function endpoint(methods,handler){return async(req,res)=>{

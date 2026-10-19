@@ -1,0 +1,40 @@
+{
+  "release": "Ghorepawa Portal v2",
+  "branch": "feature/portal-management-v2",
+  "applicationRoot": "/home/bazarxbd/ghorepawa-app",
+  "restartRequired": true,
+  "npmInstallRequired": false,
+  "schemaVersion": 3,
+  "newFiles": [
+    "api/catalog.js",
+    "api/dashboard.js",
+    "api/notifications.js",
+    "api/products.js",
+    "api/upload.js",
+    "public/admin/portal.js",
+    "public/shop/index.html",
+    "public/shop/shop.css",
+    "public/shop/shop.js",
+    "server/images.mjs",
+    "server/products.mjs"
+  ],
+  "modifiedFiles": [
+    "api/export.js",
+    "api/orders.js",
+    "api/team.js",
+    "app.mjs",
+    "public/admin/admin.css",
+    "public/admin/admin.js",
+    "public/admin/index.html",
+    "public/assets/store.js",
+    "public/index.html",
+    "server/http.mjs",
+    "server/schema.mjs"
+  ],
+  "preserve": [
+    "node_modules",
+    "public/uploads",
+    "all existing server-only environment variables"
+  ],
+  "notes": "Backend and frontend must be deployed together; never delete or reset live business data."
+}

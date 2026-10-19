@@ -2,6 +2,7 @@ import {getMigrations} from 'better-auth/db/migration';
 import {getAuth} from './auth.mjs';
 import {transaction} from './db.mjs';
 import {upgradeSchema} from './upgrade.mjs';
+import {upgradePortal} from './products.mjs';
 import {bootstrapOwner} from './bootstrap.mjs';
 let ready;
 export function ensureSchema(){
@@ -44,6 +45,7 @@ export function ensureSchema(){
     await client.query('INSERT INTO shop_schema(version) VALUES(1)');
     });
     await upgradeSchema();
+    await upgradePortal();
     await bootstrapOwner();
   })().catch(error=>{ready=null;throw error;});
 }

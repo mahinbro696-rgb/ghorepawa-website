@@ -16,7 +16,18 @@ test('owner setup secret is compared by its hash and fails closed',()=>{
  const token='temporary-test-secret';assert(secretMatches(token,digest(token)));assert(!secretMatches('wrong',digest(token)));assert(!secretMatches(token,''));assert(!secretMatches(null,digest(token)));
 });
 test('all API modules import without connecting to a database at build time',async()=>{
- for(const name of ['auth','setup','login','session','team','orders','history']){
+ for(const name of ['auth','setup','login','session','team','orders','history','products','catalog','dashboard','notifications','upload']){
  const module=await import('../api/'+name+'.js');assert.equal(typeof module.default,'function');
  }
+});
+
+test('Bengali UTF-8 remains intact when network chunks split characters',async()=>{
+ const {Readable}=await import('node:stream');
+ const input={name:'\u09ac\u09be\u09ac\u09c1\u09b2',address:'\u09a2\u09be\u0995\u09be'};
+ const bytes=Buffer.from(JSON.stringify(input));const stream=Readable.from([...bytes].map(b=>Buffer.from([b])));stream.headers={};
+ assert.deepEqual(await body(stream),input);
+});
+test('body size limit can be explicitly raised only for image uploads',async()=>{
+ const value={image:'x'.repeat(14000)};await assert.rejects(()=>body({headers:{},body:value}));
+ assert.deepEqual(await body({headers:{},body:value},20000),value);
 });

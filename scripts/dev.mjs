@@ -7,7 +7,7 @@ http.createServer(async(req,res)=>{
  try{
  const pathname=new URL(req.url,'http://localhost').pathname;
  if(pathname.startsWith('/api/')){const name=pathname.slice(5);if(!/^[a-z]+$/.test(name)){res.status(404).end();return;}const module=await import(`../api/${name}.js`);await module.default(req,res);return;}
- const relative=pathname==='/'?'index.html':pathname==='/moderator'||pathname==='/admin'||pathname==='/admin/'||pathname==='/admin/setup'?'admin/index.html':pathname.slice(1);
+ const relative=pathname==='/'?'index.html':pathname==='/shop'||pathname==='/shop/'?'shop/index.html':pathname==='/moderator'||pathname==='/admin'||pathname==='/admin/'||pathname==='/admin/setup'?'admin/index.html':pathname.slice(1);
  const file=path.resolve('public',relative);if(!file.startsWith(path.resolve('public')+path.sep)){res.status(403).end();return;}await stat(file);res.setHeader('Content-Type',types[path.extname(file)]||'application/octet-stream');res.end(await readFile(file));
  }catch{res.status(404).json({error:'Not found'});}
 }).listen(process.env.PORT||3000,()=>console.log('Local site: http://localhost:'+(process.env.PORT||3000)));

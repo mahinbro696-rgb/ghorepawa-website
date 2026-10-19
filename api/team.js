@@ -7,6 +7,7 @@ import {AppError,text,username,password} from '../server/domain.mjs';
 export default endpoint(['GET','POST','PATCH'],async(req,res)=>{
   const admin=await actor(req,true);
   if(req.method==='GET'){
+    if(new URL(req.url,'https://local').searchParams.get('compact')==='1')return res.json({members:(await getPool().query('SELECT id,username,name,role,status FROM team_members ORDER BY name,id')).rows});
     const {rows}=await getPool().query(`SELECT m.id,m.username,m.name,m.role,m.status,m.created_at,
       count(o.id)::int AS total_orders,
       count(o.id) FILTER(WHERE o.status IN('assigned','callback'))::int AS pending_orders,

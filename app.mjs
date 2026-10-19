@@ -5,7 +5,7 @@ import {fileURLToPath} from 'node:url';
 
 const root=path.join(path.dirname(fileURLToPath(import.meta.url)), 'public');
 const mime={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.json':'application/json; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.webp':'image/webp','.gif':'image/gif','.ico':'image/x-icon','.woff':'font/woff','.woff2':'font/woff2'};
-const apiNames=new Set(['auth','export','history','login','orders','security','session','setup','team']);
+const apiNames=new Set(['auth','export','history','login','orders','security','session','setup','team','products','catalog','dashboard','notifications','upload']);
 const port=Number(process.env.PORT||3000);
 if(!Number.isInteger(port)||port<1||port>65535)throw Error('Invalid PORT');
 if(!process.env.DATABASE_URL||!process.env.BETTER_AUTH_SECRET||!process.env.APP_ORIGIN){
@@ -31,7 +31,7 @@ const server=http.createServer(async(req,res)=>{
     if(req.method!=='GET'&&req.method!=='HEAD'){
       res.setHeader('Allow','GET, HEAD');return res.status(405).end();
     }
-    let relative=rawPath==='/'?'index.html':
+    let relative=rawPath==='/'?'index.html':['/shop','/shop/'].includes(rawPath)?'shop/index.html':
       ['/admin','/admin/','/admin/setup','/moderator','/moderator/'].includes(rawPath)?'admin/index.html':rawPath.slice(1);
     // Do not expose dotfiles or application source; only the public directory is served.
     if(relative.split('/').some(part=>!part||part.startsWith('.')))return res.status(404).end();
@@ -43,6 +43,7 @@ const server=http.createServer(async(req,res)=>{
       res.setHeader('Cache-Control','private, no-store');
       res.setHeader('X-Frame-Options','DENY');
       res.setHeader('X-Robots-Tag','noindex, nofollow');
+      res.setHeader('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'");
     }
     res.setHeader('Content-Type',mime[path.extname(candidate).toLowerCase()]||'application/octet-stream');
     if(req.method==='HEAD')return res.end();

@@ -5,18 +5,21 @@ function onMediaChange(query, callback, options) {
 }
 const currency = value => '৳' + new Intl.NumberFormat('bn-BD').format(value);
 let quantity = 1;
+let landingProduct=null,unitPrice=399;
+const landingProductId='00000000-0000-4000-8000-000000000001';
+const quantityLimit=()=>Math.min(10,landingProduct?.stock??10);
 const update = () => {
   document.querySelector('#form-status')?.replaceChildren();
   document.querySelector('#quantity').value = new Intl.NumberFormat('bn-BD').format(quantity);
   const summaryQuantity = document.querySelector('#summary-quantity');
   if (summaryQuantity) summaryQuantity.textContent = new Intl.NumberFormat('bn-BD').format(quantity);
-  document.querySelector('#subtotal').textContent = currency(quantity * 399);
-  document.querySelector('#total').textContent = currency(quantity * 399);
+  document.querySelector('#subtotal').textContent = currency(quantity * unitPrice);
+  document.querySelector('#total').textContent = currency(quantity * unitPrice);
   document.querySelector('#minus').disabled = quantity <= 1;
-  document.querySelector('#plus').disabled = quantity >= 10;
+  document.querySelector('#plus').disabled = quantity >= quantityLimit();
 };
 document.querySelector('#minus').addEventListener('click', () => {quantity = Math.max(1, quantity - 1); update();});
-document.querySelector('#plus').addEventListener('click', () => {quantity = Math.min(10, quantity + 1); update();});
+document.querySelector('#plus').addEventListener('click', () => {quantity = Math.min(quantityLimit(), quantity + 1); update();});
 const orderForm = document.querySelector('#order-form');
 const formStatus = document.querySelector('#form-status');
 const textFields = [...orderForm.querySelectorAll('input:not([type="tel"]):not([name="website"]), textarea')];
@@ -32,7 +35,7 @@ let orderSubmitting = false;
 let orderAttempt = null;
 orderForm.addEventListener('submit', async event => {
   event.preventDefault();
-  if (orderSubmitting) return;
+  if (orderSubmitting || !landingProduct || landingProduct.stock===0) return;
   textFields.forEach(field => { field.value = field.value.trim(); validateTextField(field); });
   if (!orderForm.reportValidity()) return;
   orderSubmitting = true;
@@ -44,8 +47,9 @@ orderForm.addEventListener('submit', async event => {
   document.querySelector('#plus').disabled = true;
   formStatus.textContent = 'অনুগ্রহ করে অপেক্ষা করুন…';
   try {
-  const payload = {...Object.fromEntries(new FormData(orderForm)), quantity};
-  const fingerprint = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify(payload))))).map(n => n.toString(16).padStart(2, '0')).join('');
+  const payload = {...Object.fromEntries(new FormData(orderForm)), quantity,productId:landingProduct.id,expectedUnitPrice:unitPrice};
+  const {expectedUnitPrice,...orderIntent}=payload;
+  const fingerprint = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify(orderIntent))))).map(n => n.toString(16).padStart(2, '0')).join('');
   try { orderAttempt = JSON.parse(localStorage.getItem('ever-strong-order-attempt') || 'null'); } catch {}
   if (!orderAttempt || orderAttempt.fingerprint !== fingerprint) orderAttempt = {key:crypto.randomUUID(), fingerprint};
   try { localStorage.setItem('ever-strong-order-attempt', JSON.stringify(orderAttempt)); } catch {}
@@ -74,13 +78,34 @@ orderForm.addEventListener('submit', async event => {
     submit.disabled = false;
     submit.textContent = 'অর্ডার জমা দিন →';
     document.querySelector('#minus').disabled = quantity <= 1;
-    document.querySelector('#plus').disabled = quantity >= 10;
+    document.querySelector('#plus').disabled = quantity >= quantityLimit();
     formStatus.focus({preventScroll:true});
     formStatus.scrollIntoView({block:'center',behavior:'auto'});
   }
 });
-orderForm.querySelector('[type="submit"]').disabled = false;
+orderForm.querySelector('[type="submit"]').disabled = true;
 update();
+async function loadLandingProduct(){
+  try{
+    const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),20000);
+    let response;try{response=await fetch('/api/catalog?id='+landingProductId,{cache:'no-store',signal:controller.signal});}finally{clearTimeout(timer);}
+    if(!response.ok)throw new Error('Product information is unavailable.');
+    const data=await response.json();landingProduct=data.products[0];
+    if(!landingProduct)throw new Error('This product is not available for orders.');
+    unitPrice=landingProduct.price;
+    document.querySelectorAll('.hero-price-current strong,.hero-offer-total b,.checkout-product small b').forEach(el=>el.textContent=currency(unitPrice));
+    const prev=document.querySelector('.hero-price-previous');if(prev){prev.hidden=landingProduct.compare_at_price<=unitPrice;prev.querySelector('del').textContent=currency(landingProduct.compare_at_price);}
+    const saving=document.querySelector('.hero-offer-saving');if(saving){saving.hidden=landingProduct.compare_at_price<=unitPrice;saving.querySelector('b').textContent=currency(Math.max(0,landingProduct.compare_at_price-unitPrice));}
+    document.querySelector('.hero-offer-card')?.setAttribute('aria-label',landingProduct.name+' '+currency(unitPrice));
+    const title=document.querySelector('.checkout-product strong');if(title)title.textContent=landingProduct.name;
+    const image=document.querySelector('.checkout-product img');if(image&&landingProduct.image_url){image.src=landingProduct.image_url;image.alt=landingProduct.name;}
+    quantity=Math.max(1,Math.min(quantity,quantityLimit()));update();
+    if(landingProduct.stock===0){formStatus.textContent='Out of stock. Please check again later.';return;}
+    orderForm.querySelector('[type="submit"]').disabled=false;
+  }catch(error){landingProduct=null;formStatus.textContent=error.message+' Reload this page to retry.';formStatus.dataset.state='error';}
+}
+loadLandingProduct();
+
 
 // Reveal content once; preserve full visibility without JavaScript or reduced motion.
 if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {

@@ -8,8 +8,8 @@ export default endpoint(['GET'],async(req,res)=>{
   await client.query('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY');
   res.setHeader('Content-Type','application/json; charset=utf-8');
   res.setHeader('Content-Disposition',`attachment; filename="ever-strong-backup-${new Date().toISOString().slice(0,10)}.json"`);
-  res.write('{"formatVersion":1,"exportedAt":'+JSON.stringify(new Date().toISOString()));
-  for(const table of ['shop_orders','order_events','team_members','team_events']){
+  res.write('{"formatVersion":2,"exportedAt":'+JSON.stringify(new Date().toISOString()));
+  for(const table of ['shop_orders','order_events','team_members','team_events','shop_products','product_events']){
    res.write(','+JSON.stringify(table)+':[');
    await client.query(`DECLARE export_rows NO SCROLL CURSOR FOR SELECT * FROM ${table} ORDER BY id`);
    let first=true;
