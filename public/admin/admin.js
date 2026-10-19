@@ -83,7 +83,7 @@ async function loadCurrent({background=false}={}){
  document.querySelectorAll('[data-view]').forEach(b=>{b.classList.toggle('active',b.dataset.view===view);b.setAttribute('aria-current',b.dataset.view===view?'page':'false');});
  const label=document.querySelector(`[data-view="${view}"] span`);document.querySelector('#breadcrumb').textContent=label?.textContent||'Workspace';
  content.classList.add('is-loading');content.setAttribute('aria-busy','true');
- if(content.dataset.view!==view){content.dataset.view=view;content.innerHTML='<div class="skeleton-grid" aria-label="Loading"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>';renderedOrdersKey='';}
+ if(content.dataset.currentView!==view){content.dataset.currentView=view;content.innerHTML='<div class="skeleton-grid" aria-label="Loading"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>';renderedOrdersKey='';}
  try{
   if(['dashboard','products','notifications'].includes(view)){await renderExtraView(view,id,signal);return;}
   if(view==='workhistory'){await renderWorkHistory(id,signal);return;}
