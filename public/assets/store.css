@@ -586,3 +586,4 @@ input:autofill{box-shadow:0 0 0 100px #1b3022 inset;-webkit-text-fill-color:#f1f
 @keyframes mobile-price-pulse{0%,70%,100%{transform:scale(1)}35%{transform:scale(1.035)}}
 @keyframes mobile-text-light{0%,100%{opacity:1}50%{opacity:.82}}
 @keyframes mobile-soft-light{0%,100%{opacity:.45}50%{opacity:.85}}
+\n.order-trap{display:none!important}\n.checkout-card #form-status[data-state="error"]{border-color:#bc6e59;background:#3a2520;color:#ffe2d9}\n

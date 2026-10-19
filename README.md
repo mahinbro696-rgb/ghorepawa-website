@@ -1,29 +1,44 @@
-# Ghorepawa / Ever Strong — first design draft
+# Ghorepawa / Ever Strong
 
-## Status
-Initial responsive storefront design only. NOT a production shop. Form validation and quantity/price calculation work locally. No order submission, database, payment, admin authentication, Pixel or WhatsApp integration has been implemented. No fabricated testimonials or unverified health claims are added to site copy. The supplied packaging image contains seller claims; these have not been verified. Replace the screenshot asset with the original product photo before launch.
+Static Bengali storefront plus a Node.js order API and role-based team workspace at `/admin`.
 
-Confirmed details: Ever Strong, 120 g, regular BDT 2599, offer BDT 399, delivery free, contact +8809639224727. Cash on delivery, WhatsApp availability, ingredients, directions, policies and delivery timelines are unconfirmed.
+## Requirements
 
-## Preview
-Use Node 20+:
+Node.js 24+, Neon PostgreSQL, and Vercel Functions. Install with `npm ci`.
 
-    npm run check
-    npm run build
+Required server-only environment variables:
 
-Vercel: Import this repository, Framework Preset Other, Build Command `npm run build`, Output Directory `dist`. No dependencies required. Only `public/` is copied to the deployment; server source/config must never be exposed as static assets. Preview is marked noindex.
+- `DATABASE_URL`: the existing Neon integration connection string.
+- `BETTER_AUTH_SECRET`: a random authentication secret of at least 32 bytes.
+- `ADMIN_SETUP_HASH`: SHA-256 hash of a random one-time owner setup token.
+- `APP_ORIGIN` (optional): canonical site origin. Vercel deployment hostnames are otherwise used automatically.
 
-## Intended architecture
-`public/` contains portable HTML/CSS/JS. The planned `server/` will contain a PHP/MySQL API and server-verified admin login; `database/` will contain migrations. These backend directories are currently placeholders. Vercel is for the static design preview. Test orders and admin against ExonHost staging before launch; uploading PHP backend to ordinary static Vercel hosting will not run it.
+Never put these values in public assets, client-side build variables, source control, logs or chat attachments. `.env*` is ignored. Preview and production databases must stay separate.
 
-For cPanel production, place public files in `/home/bazarxbd/ghorepawa.store` and private server configuration outside the public document root. Import the future SQL migrations, configure a restricted DB user, verify SSL, orders and admin, then launch. Preserve existing cPanel PHP directives and HTTPS redirect. Do not upload this repository wholesale into the public document root.
+## First owner
 
-## Next work
-1. Confirm design and remaining seller information.
-2. Implement order API with server-controlled prices, validation and anti-abuse limits.
-3. Implement secure admin sessions, CSRF checks, login throttling, product editing and order status management.
-4. Implement image upload constraints, migrations and environment configuration.
-5. Test persistence, authentication, unauthorized access and failure handling on ExonHost staging.
-6. Add approved policies and remove preview notices/noindex only at launch.
+Open `/admin/setup` and enter the privately supplied setup token, your name, a unique username and a password of at least 12 characters. The endpoint permits exactly one main admin, enforced by a transaction lock and a unique database index. Public account signup is not exposed. Credentials are hashed by Better Auth; login uses HTTP-only cookies. Team members are provisioned in the panel and remain pending until the owner activates them.
 
-Never commit passwords, customer exports or production config. Keep GitHub repository private while developing.
+## Workflow
+
+Website order → New → admin bulk assigns to an active moderator → Assigned → Confirmed / Callback / Unapproved. Confirmed orders return to admin for Approved / Unapproved. Approved → Dispatched → Delivered (or Cancelled). Unapproved orders can be reassigned for a new call. Callback requires a future timestamp and a reason. All order changes and team account changes have audit records.
+
+Moderators can access only their assigned orders and cannot approve orders themselves. Disabling a member revokes sessions. Changes check an order version to reject conflicting edits. Bulk assignment is transactional. Status filters, customer search, pagination, duplicate-phone indicators, staff workload, notes, history and password management are included. The panel displays Bangladesh time.
+
+The public order endpoint validates data and prices on the server, enforces quantity limits, rate limits submission and accepts a persistent idempotency key to prevent duplicate retries. It does not expose customer records publicly. The storefront reports success only after database persistence.
+
+## Development and validation
+
+`npm run check` — JavaScript parsing, local asset paths and HTML IDs.
+
+`npm test` — workflow, permission, validation and server-price tests.
+
+`npm run build` — copies only public assets to dist. API handlers and server libraries are bundled separately by Vercel and are never served as static files.
+
+`node --env-file=.env.local scripts/dev.mjs` — local Node server, using a separate development database and authentication secret. Never run automated test orders against a live customer database.
+
+Schema and auth migrations execute once per schema version using a database advisory lock. Test migrations on preview before promotion. No local filesystem storage is used for orders or sessions.
+
+## Hosting
+
+Vercel config builds the static site and Node functions together in Singapore. A future move to ordinary PHP-only shared hosting requires a compatible Node runtime or a backend migration; uploading server modules to a public document root does not run them. Search indexing remains disabled pending the seller's launch decision.

@@ -1,7 +1,20 @@
 {
   "name": "ghorepawa-ever-strong",
   "private": true,
-  "version": "0.1.0",
-  "scripts": {"build": "node scripts/build.mjs", "check": "node --check public/assets/store.js"},
-  "engines": {"node": ">=20"}
+  "version": "1.0.0",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "check": "node scripts/check.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "dev": "node scripts/dev.mjs"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.2.0",
+    "better-auth": "^1.7.11",
+    "ws": "^8.22.0"
+  },
+  "type": "module"
 }

@@ -19,7 +19,7 @@ document.querySelector('#minus').addEventListener('click', () => {quantity = Mat
 document.querySelector('#plus').addEventListener('click', () => {quantity = Math.min(10, quantity + 1); update();});
 const orderForm = document.querySelector('#order-form');
 const formStatus = document.querySelector('#form-status');
-const textFields = [...orderForm.querySelectorAll('input:not([type="tel"]), textarea')];
+const textFields = [...orderForm.querySelectorAll('input:not([type="tel"]):not([name="website"]), textarea')];
 function validateTextField(field) {
   field.setCustomValidity(field.value.trim() ? '' : 'অনুগ্রহ করে এই তথ্যটি লিখুন। শুধু স্পেস গ্রহণযোগ্য নয়।');
 }
@@ -28,18 +28,48 @@ textFields.forEach(field => {
   field.addEventListener('blur', () => { field.value = field.value.trim(); validateTextField(field); });
 });
 orderForm.addEventListener('input', () => formStatus.replaceChildren());
-orderForm.addEventListener('submit', event => {
+let orderSubmitting = false;
+let orderAttempt = null;
+orderForm.addEventListener('submit', async event => {
   event.preventDefault();
+  if (orderSubmitting) return;
   textFields.forEach(field => { field.value = field.value.trim(); validateTextField(field); });
   if (!orderForm.reportValidity()) return;
-  const message = document.createElement('span');
-  message.textContent = 'তথ্য যাচাই হয়েছে। অর্ডারটি এখনো জমা হয়নি। অর্ডার সম্পন্ন করতে কল করুন: ';
-  const call = document.createElement('a');
-  call.href = 'tel:+8809639224727';
-  call.textContent = '+8809639224727';
-  formStatus.replaceChildren(message, call);
-  formStatus.focus({preventScroll: true});
-  formStatus.scrollIntoView({block: 'center', behavior: 'auto'});
+  orderSubmitting = true;
+  const submit = orderForm.querySelector('[type="submit"]');
+  submit.disabled = true;
+  submit.textContent = 'অর্ডার জমা হচ্ছে…';
+  document.querySelector('#minus').disabled = true;
+  document.querySelector('#plus').disabled = true;
+  formStatus.textContent = 'অনুগ্রহ করে অপেক্ষা করুন…';
+  try {
+  const payload = {...Object.fromEntries(new FormData(orderForm)), quantity};
+  const fingerprint = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify(payload))))).map(n => n.toString(16).padStart(2, '0')).join('');
+  try { orderAttempt = JSON.parse(sessionStorage.getItem('ever-strong-order-attempt') || 'null'); } catch {}
+  if (!orderAttempt || orderAttempt.fingerprint !== fingerprint) orderAttempt = {key:crypto.randomUUID(), fingerprint};
+  try { sessionStorage.setItem('ever-strong-order-attempt', JSON.stringify(orderAttempt)); } catch {}
+    const response = await fetch('/api/orders', {
+      method:'POST', headers:{'Content-Type':'application/json','Idempotency-Key':orderAttempt.key},
+      body:JSON.stringify(payload), signal:AbortSignal.timeout(45000)
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || 'অর্ডার জমা হয়নি। আবার চেষ্টা করুন।');
+    formStatus.textContent = 'আপনার অর্ডারের অনুরোধ জমা হয়েছে। অর্ডার নম্বর ES-' + result.reference + '। আমাদের প্রতিনিধি ফোন করে নিশ্চিত করবেন।';
+    formStatus.dataset.state = 'success';
+  } catch (error) {
+    formStatus.textContent = error.name === 'TimeoutError' || error.name === 'TypeError'
+      ? 'সংযোগের সমস্যা হচ্ছে। আবার চেষ্টা করুন—একই অনুরোধে দ্বিতীয় অর্ডার তৈরি হবে না।'
+      : error.message;
+    formStatus.dataset.state = 'error';
+  } finally {
+    orderSubmitting = false;
+    submit.disabled = false;
+    submit.textContent = 'অর্ডার জমা দিন →';
+    document.querySelector('#minus').disabled = quantity <= 1;
+    document.querySelector('#plus').disabled = quantity >= 10;
+    formStatus.focus({preventScroll:true});
+    formStatus.scrollIntoView({block:'center',behavior:'auto'});
+  }
 });
 orderForm.querySelector('[type="submit"]').disabled = false;
 update();
