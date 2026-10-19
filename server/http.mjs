@@ -39,7 +39,7 @@ export async function actor(req,adminOnly=false){
   return member;
 }
 export const digest=value=>createHash('sha256').update(value).digest('hex');
-export function secretMatches(value,hash){if(typeof value!=='string'||!hash)return false;const a=Buffer.from(digest(value));const b=Buffer.from(hash);return a.length===b.length&&timingSafeEqual(a,b);}
+export function secretMatches(value,hash){if(typeof value!=='string'||!hash)return false;const a=Buffer.from(digest(value.trim()));const b=Buffer.from(hash);return a.length===b.length&&timingSafeEqual(a,b);}
 export async function rate(req,scope,max=10,seconds=900,identity=''){
   const ip=req.headers['x-vercel-forwarded-for']||req.headers['x-forwarded-for']||req.socket?.remoteAddress||'unknown';
   const key=createHmac('sha256',process.env.BETTER_AUTH_SECRET).update(`${scope}:${identity||String(ip).split(',')[0]}`).digest('hex');
