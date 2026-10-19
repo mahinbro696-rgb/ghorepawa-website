@@ -95,7 +95,8 @@ try:
   outcome(cb,a['id'],'callback');outcome(cf,b['id'],'confirmed');outcome(cx,a['id'],'cancelled')
   pa.locator('#refresh').click();expect(pa.locator('.state-cancelled')).to_have_count(1)
   colors=[pa.locator('.state-'+s+' td').first.evaluate('(e)=>getComputedStyle(e).backgroundColor') for s in ['delivered','callback','confirmed','cancelled']];assert len(set(colors))==4
-  assert pa.locator('body').evaluate('(e)=>parseFloat(getComputedStyle(e).fontSize)')>=17
+  assert pa.locator('body').evaluate('(e)=>parseFloat(getComputedStyle(e).fontSize)')==14
+  assert pm1.locator('body').evaluate('(e)=>parseFloat(getComputedStyle(e).fontSize)')>=17
   pa.screenshot(path=str(OUT/'admin-glass-orders.png'),full_page=True)
   pa.locator('[data-view="team"]').click();expect(pa.locator('.team-grid')).to_be_visible()
   chips=pa.locator('.member-header .staff-chip');assert chips.count()==2
@@ -110,7 +111,7 @@ try:
   pms.screenshot(path=str(OUT/'moderator-mobile.png'),full_page=True)
   browser.close()
  assert not errors,errors
- print('PASS real HTTP browser acceptance: admin/moderator login, isolated inbox, callback handoff/reassignment, minimal history, courier/complete, consent deletion, cross-session revocation, status colors, staff badges, large fonts and mobile layout.')
+ print('PASS real HTTP browser acceptance: admin/moderator login, isolated inbox, callback handoff/reassignment, minimal history, courier/complete, consent deletion, cross-session revocation, status colors, staff badges, compact admin fonts, unchanged moderator fonts and mobile layout.')
 finally:
  proc.terminate()
  try:proc.wait(timeout=10)

@@ -67,6 +67,42 @@ try:
     page.screenshot(path=str(out/'admin-dashboard.png'),full_page=True)
     page.locator('[data-view="orders"]').click();page.locator('#filter-form').wait_for()
     assert page.locator('[data-open]').count()==6
+    # Admin-only compact sizing; moderator layout must not inherit these rules.
+    assert page.locator('body').evaluate('(e)=>getComputedStyle(e).fontSize')=='14px'
+    row=page.locator('.work-table tbody tr').first
+    height=row.bounding_box()['height'];assert 48<=height<=96, height
+    assert page.locator('.order-row-actions').first.evaluate('(e)=>getComputedStyle(e).display')=='flex'
+    assert page.locator('.order-row-actions .delete-order-link').first.bounding_box()['width']>=32
+    assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+    print('PASS compact admin: 14px body; standard row height',height,'CSS px; aligned actions; no page overflow')
+    page.screenshot(path=str(out/'admin-compact-orders.png'),full_page=True)
+    # Assignment must not activate until both a task and a moderator are selected.
+    first=page.locator('[data-select]').first
+    first.check();assert page.locator('#assign').is_disabled()
+    assert page.locator('.work-table .is-selected').count()==1
+    page.locator('#bulk-assignee').select_option('mod-test');assert page.locator('#assign').is_enabled()
+    page.locator('#bulk-assignee').select_option('');assert page.locator('#assign').is_disabled()
+    first.uncheck();assert page.locator('.work-table .is-selected').count()==0
+    # Cached reads must not reset their timestamp and keep disabled moderators forever.
+    before=sum(n=='team' for n,m in seen)
+    saved=page.evaluate('teamCacheAt')
+    page.evaluate('async()=>{await loadCurrent();await loadCurrent();}')
+    assert page.evaluate('teamCacheAt')==saved
+    assert sum(n=='team' for n,m in seen)==before
+    page.evaluate('async()=>{teamCacheAt=Date.now()-65000;await loadCurrent();}')
+    assert sum(n=='team' for n,m in seen)==before+1
+    print('PASS assignment guard, row selection and genuine 60-second team cache expiry')
+    # Very long names/notes must not expand the table or execute injected markup.
+    original=orders[0].copy();orders[0]['customer_name']='<img src=x onerror=alert(1)> '+('Long customer '*18)
+    orders[0]['product_name']='Long product name '*25
+    orders[0]['latest_note']='Call after lunch; verify the address. '*25
+    page.evaluate('async()=>{await loadCurrent();}')
+    assert page.locator('.order-customer img').count()==0
+    assert page.locator('.work-table .call-note').first.bounding_box()['height']<=37
+    assert page.locator('.work-table .cell-title').first.evaluate('(e)=>e.scrollWidth>e.clientWidth')
+    assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+    orders[0].clear();orders[0].update(original);page.evaluate('async()=>{await loadCurrent();}')
+    print('PASS long customer/product text, bounded note preview and HTML escaping')
     page.locator('[data-open]').first.click();page.locator('#order-dialog[open]').wait_for();page.locator('#history-content .history-item').wait_for()
     page.locator('#order-dialog .close').click()
     page.locator('[data-view="products"]').click();page.locator('#add-product').wait_for()
@@ -84,13 +120,19 @@ try:
     state['signed']=True;state['role']='moderator';c.close();c,page=start_page(browser)
     page.goto(origin+'/moderator');page.locator('h1',has_text='My work inbox').wait_for();assert page.locator('[data-view="products"]').count()==0;assert page.locator('[data-view="team"]').count()==0
     page.locator('[data-view="orders"]').click();page.locator('#filter-form').wait_for();assert page.locator('#assign').count()==0
-    print('PASS moderator: restricted menus and no admin bulk assignment')
+    assert page.locator('body').evaluate('(e)=>getComputedStyle(e).fontSize')=='17px'
+    assert page.locator('body.admin-mode').count()==0
+    print('PASS moderator: unchanged 17px UI, restricted menus and no admin bulk assignment')
     c.close();state['role']='admin';c,page=start_page(browser,mobile=True);page.goto(origin+'/admin');page.locator('.stats.summary').wait_for()
     assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth')
     page.locator('#menu-toggle').click();page.locator('[data-view="products"]').click();page.locator('#add-product').wait_for();assert not page.locator('body').evaluate("el=>el.classList.contains('mobile-nav-open')")
     page.screenshot(path=str(out/'admin-mobile.png'),full_page=True)
     assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth')
-    print('PASS mobile: navigation, responsive width, reduced motion')
+    page.locator('#menu-toggle').click();page.locator('[data-view="orders"]').click();page.locator('#filter-form').wait_for()
+    assert page.locator('#filter-form input').evaluate('(e)=>parseFloat(getComputedStyle(e).fontSize)')>=16
+    assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+    page.screenshot(path=str(out/'admin-compact-mobile.png'),full_page=True)
+    print('PASS mobile: compact layout, usable 16px inputs, navigation, responsive width, reduced motion')
     c.close();c,page=start_page(browser);page.goto(origin+'/shop');page.locator('[data-buy]').wait_for();page.locator('[data-buy]').click();page.locator('#checkout-form').wait_for();assert page.locator('#checkout-total').inner_text()
     print('PASS public catalog: product list and checkout form')
     c.close();browser.close()

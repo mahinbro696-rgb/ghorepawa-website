@@ -1,0 +1,160 @@
+/* Admin-only density polish. Load after admin.css. Moderator styles stay unchanged. */
+body.admin-mode {font-size:14px;line-height:1.55;--radius:14px}
+.admin-mode h1,.admin-mode .content h1 {font-size:24px;line-height:1.35;letter-spacing:-.45px}
+.admin-mode h2,.admin-mode .panel-head h2 {font-size:18px}
+.admin-mode h3 {font-size:16px}
+.admin-mode .shell {grid-template-columns:240px minmax(0,1fr)}
+.admin-mode .sidebar {padding:24px 15px}
+.admin-mode .brand {gap:10px}
+.admin-mode .brand strong {font-size:20px}
+.admin-mode .brand small {font-size:10px}
+.admin-mode .brand-mark {width:36px;height:36px;border-radius:10px}
+.admin-mode .panel-identity {font-size:18px;padding:0 12px 14px}
+.admin-mode .nav-caption {font-size:10px;letter-spacing:1.2px}
+.admin-mode .nav-links {gap:4px}
+.admin-mode .nav-links button {font-size:13px;min-height:42px;padding:10px 12px;gap:10px;align-items:center}
+.admin-mode .nav-links .icon {width:17px;height:17px;margin:0}
+.admin-mode .sidebar-bottom {font-size:11px;padding-top:22px}
+.admin-mode .topbar {height:72px;min-height:72px;padding:12px 22px}
+.admin-mode .workspace-title strong {font-size:17px}
+.admin-mode .workspace-title #breadcrumb {font-size:12px}
+.admin-mode .connection {font-size:11px}
+.admin-mode .user-chip strong {font-size:13px}
+.admin-mode .user-chip span {font-size:11px}
+.admin-mode .content {padding:24px;max-width:1680px}
+.admin-mode .content.is-loading::before {left:240px;top:71px}
+.admin-mode .page-heading {margin-bottom:18px;gap:16px}
+.admin-mode .page-heading p {font-size:13px;max-width:690px}
+.admin-mode .eyebrow {font-size:10px;letter-spacing:1.15px;margin-bottom:6px}
+.admin-mode .small,.admin-mode .help,.admin-mode .panel-head p,.admin-mode .stat small,
+.admin-mode .chart-labels,.admin-mode .history-item small,.admin-mode .detail-label,
+.admin-mode .notice-item p,.admin-mode .preference-row p,.admin-mode .updates-banner,
+.admin-mode .auth-back,.admin-mode #toast {font-size:12px}
+.admin-mode .detail-value,.admin-mode .history-item {font-size:14px}
+.admin-mode label,.admin-mode .filters label {font-size:12px}
+.admin-mode input,.admin-mode select,.admin-mode textarea {font-size:14px;min-height:38px;padding:8px 10px;border-radius:8px}
+.admin-mode textarea {min-height:96px}
+.admin-mode input[type=checkbox] {width:16px;height:16px;min-height:16px;padding:0;border-radius:3px}
+.admin-mode .btn {min-height:36px;padding:8px 12px;font-size:13px;border-radius:8px;line-height:1.4}
+.admin-mode .btn.icon-only {width:36px;padding:7px}
+.admin-mode .stats {gap:12px;margin-bottom:18px}
+.admin-mode .stat,.admin-mode .summary .stat {padding:15px 17px}
+.admin-mode .stat>span {font-size:12px}
+.admin-mode .stat b,.admin-mode .summary .stat b {font-size:26px;margin-top:7px;line-height:1.2}
+.admin-mode .stat small {margin-top:6px}
+.admin-mode .stat .metric-icon {margin-bottom:10px}
+.admin-mode .panel-head {padding:16px 18px}
+.admin-mode .queue-row {padding:13px 0}
+.admin-mode .queue-row .queue-title {font-size:13px}
+.admin-mode .queue-row b {font-size:21px}
+.admin-mode .status-legend {font-size:11px;gap:10px 18px;margin:0 0 12px}
+.admin-mode .status-legend span {gap:6px}
+.admin-mode .status-legend span::before {width:7px;height:7px;border-radius:50%}
+.admin-mode .filters {grid-template-columns:minmax(190px,1fr) minmax(160px,.65fr) minmax(190px,.8fr) auto;padding:15px 16px;gap:12px}
+.admin-mode .filters label {font-weight:500;letter-spacing:.1px}
+.admin-mode .bulk-bar {padding:10px 16px;gap:10px;background:#14243b}
+.admin-mode .bulk-bar .selection-count {font-size:12px;font-weight:600;color:#c7d9ef}
+.admin-mode .bulk-bar label {font-size:12px}
+.admin-mode .bulk-bar select {min-height:34px;max-width:245px}
+.admin-mode .bulk-bar .btn {min-height:34px}
+.admin-mode #assignee-chip:empty {display:none}
+.admin-mode .table-scroll {scrollbar-width:thin;scrollbar-color:#455a7c #101e32}
+.admin-mode td {font-size:13px;padding:12px;line-height:1.5}
+.admin-mode th {font-size:11px;padding:12px;font-weight:600}
+.admin-mode td small {font-size:12px;margin-top:3px}
+.admin-mode .badge {font-size:11px;font-weight:600;line-height:1.4;padding:4px 8px;border-radius:6px}
+.admin-mode .pagination {padding:13px 16px;font-size:12px;gap:12px}
+.admin-mode .work-table {table-layout:fixed;min-width:1080px;width:100%}
+.admin-mode .work-table .col-check {width:4%}
+.admin-mode .work-table .col-reference {width:13%}
+.admin-mode .work-table .col-customer {width:17%}
+.admin-mode .work-table .col-location {width:14%}
+.admin-mode .work-table .col-product {width:14%}
+.admin-mode .work-table .col-status {width:15%}
+.admin-mode .work-table .col-moderator {width:13%}
+.admin-mode .work-table .col-actions {width:10%}
+.admin-mode .work-table th {background:#101d30;color:#9eafc8;letter-spacing:.2px;padding:11px 10px;white-space:normal}
+.admin-mode .work-table td {padding:11px 10px;min-width:0;white-space:normal;overflow-wrap:anywhere;border-top:1px solid #bdd6fc14;vertical-align:middle}
+.admin-mode .work-table .order-check {padding:7px 5px;text-align:center;overflow-wrap:normal}
+.admin-mode .check-target {display:inline-flex;width:28px;min-height:28px;align-items:center;justify-content:center;cursor:pointer;margin:0;vertical-align:middle}
+.admin-mode .check-target input {margin:0}
+.admin-mode .work-table .ref {font-size:13px;line-height:1.4;white-space:nowrap}
+.admin-mode .cell-title {display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;font-weight:500;line-height:1.5}
+.admin-mode .order-customer .cell-title {font-weight:600;color:#eff5ff}
+.admin-mode .cell-meta {display:block;font-size:11px;line-height:1.5;margin-top:3px;color:#a9bad1}
+.admin-mode .order-reference time {font-size:11px}
+.admin-mode .order-time {display:block;font-size:10px;color:#8fa6c7;line-height:1.4;margin-top:1px}
+.admin-mode .phone-text {display:inline-block;font-size:13px;font-variant-numeric:tabular-nums;line-height:24px;white-space:nowrap;text-decoration:none;color:#9dbfee}
+.admin-mode .phone-text:hover {text-decoration:underline;color:#d2e5ff}
+.admin-mode .order-price-line {display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin-top:4px;font-size:12px;font-variant-numeric:tabular-nums}
+.admin-mode .quantity-tag {font-size:10px;line-height:1.5;color:#a4b8d2;padding-left:8px;border-left:1px solid #4d638155;white-space:nowrap}
+.admin-mode .work-table .call-note {display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;max-height:36px;max-width:none;font-size:11px;line-height:18px;color:#c3d1e5;background:none;border:0;border-left:2px solid #7488a455;border-radius:0;padding:0 0 0 7px;margin:6px 0 0;white-space:normal}
+.admin-mode .work-table .duplicate {font-size:10px;line-height:1.4;margin-top:2px}
+.admin-mode .callback-customer {font-size:10px;line-height:1.5;margin-top:5px}
+.admin-mode .work-table .order-status .badge {white-space:normal}
+.admin-mode .admin-custody {font-size:11px;color:#afc2df;display:inline-flex;align-items:center;gap:6px}
+.admin-mode .admin-custody::before {content:'';width:5px;height:5px;flex:none;background:#7e95b7;border-radius:50%}
+.admin-mode .staff-chip {font-size:11px;line-height:1.4;padding:4px 6px;gap:4px;border-radius:7px;max-width:100%;border-color:color-mix(in srgb,var(--staff-color,#93bcff) 42%,transparent)}
+.admin-mode .staff-symbol {font-size:12px}
+.admin-mode .work-table .staff-chip>span:last-child {flex-basis:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:11px}
+.admin-mode .work-table .order-row-actions {display:flex;align-items:center;justify-content:flex-end;gap:6px;white-space:nowrap}
+.admin-mode .work-table .row-open {min-height:32px;padding:6px 9px;font-size:11px;font-weight:600;line-height:1.5;border-radius:7px;background:#1d3451;border-color:#435c7c}
+.admin-mode .work-table .delete-order-link {display:inline-flex;align-items:center;justify-content:center;min-height:32px;width:32px;flex:none;padding:7px;border:1px solid #92576955;border-radius:7px;font-size:11px;line-height:1;background:#552e3b22;color:#e397a9;text-decoration:none}
+.admin-mode .work-table .delete-order-link:hover {background:#502a3b;border-color:#b27388;color:#ffe0e6}
+.admin-mode .work-table .delete-order-link .icon {width:15px;height:15px}
+/* Keep requested row status colors, but reduce saturation and the left accent width. */
+.admin-mode .work-table .state-new,.admin-mode .work-table .state-assigned {--row-bg:#14253c;--row-hover:#1b304b}
+.admin-mode .work-table .state-delivered {--row-bg:#13362e;--row-hover:#194539}
+.admin-mode .work-table .state-callback {--row-bg:#332e1c;--row-hover:#413923}
+.admin-mode .work-table .state-confirmed {--row-bg:#2a233d;--row-hover:#352c4b}
+.admin-mode .work-table .state-cancelled,.admin-mode .work-table .state-unapproved {--row-bg:#35212d;--row-hover:#452737}
+.admin-mode .work-table .state-approved,.admin-mode .work-table .state-dispatched {--row-bg:#193140;--row-hover:#203e4e}
+.admin-mode .work-table tr[class*="state-"]>td:first-child {box-shadow:inset 3px 0 var(--row-accent)}
+.admin-mode .work-table .is-selected>td {background:var(--row-hover);border-top-color:#8aabdb55}
+.admin-mode .member-card {padding:18px}
+.admin-mode .member-numbers span {font-size:12px}
+.admin-mode .member-numbers b {font-size:22px}
+.admin-mode .notice-item strong,.admin-mode .preference-row strong {font-size:14px}
+.admin-mode .danger-zone p {font-size:13px}
+.admin-mode dialog {font-size:14px;line-height:1.6}
+.admin-mode .delete-warning {padding:16px;font-size:14px}
+.admin-mode .consent-row {font-size:14px;gap:10px;margin:20px 0}
+.admin-mode .consent-row input {width:20px;height:20px;min-height:20px}
+@media(max-width:1280px) {
+ .admin-mode .filters {grid-template-columns:1fr 1fr}
+}
+@media(max-width:900px) {
+ .admin-mode .shell {display:block}
+ .admin-mode .sidebar {width:260px}
+ .admin-mode .topbar {height:68px;min-height:68px;padding:10px 14px}
+ .admin-mode .content {padding:20px 16px}
+ .admin-mode .content.is-loading::before {left:0;top:67px}
+ .admin-mode .workspace-title strong {font-size:16px}
+ .admin-mode .top-actions .btn {font-size:12px}
+ .admin-mode .top-actions .btn.icon-only {width:36px}
+ .admin-mode .page-heading {flex-wrap:wrap}
+ .admin-mode .page-heading>.button-row {margin-left:auto}
+ .admin-mode .page-heading>.button-row .btn {font-size:12px}
+ .admin-mode .panel-identity {font-size:18px}
+}
+@media(max-width:560px) {
+ body.admin-mode {font-size:14px}
+ .admin-mode .content {padding:18px 12px}
+ .admin-mode .content h1 {font-size:22px}
+ .admin-mode .page-heading p {font-size:12px}
+ .admin-mode input:not([type=checkbox]),.admin-mode select,.admin-mode textarea {font-size:16px;min-height:42px}
+ .admin-mode .filters {grid-template-columns:1fr;padding:14px}
+ .admin-mode .bulk-bar {padding:12px;gap:8px}
+ .admin-mode .bulk-bar .selection-count {flex-basis:100%}
+ .admin-mode .bulk-bar select {max-width:100%;min-width:0;flex:1}
+ .admin-mode .bulk-bar .btn {min-height:40px}
+ .admin-mode .stat,.admin-mode .summary .stat {padding:13px}
+ .admin-mode .stat b,.admin-mode .summary .stat b {font-size:24px}
+ .admin-mode .pagination {flex-wrap:wrap;padding:12px}
+ .admin-mode .pagination .btn {min-height:40px}
+}
+@media(pointer:coarse) {
+ .admin-mode .work-table .row-open,.admin-mode .work-table .delete-order-link {min-height:40px}
+ .admin-mode .work-table .delete-order-link {width:38px}
+ .admin-mode .work-table {min-width:1200px}
+}
