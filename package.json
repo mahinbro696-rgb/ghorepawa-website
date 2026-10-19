@@ -6,7 +6,8 @@
     "build": "node scripts/build.mjs",
     "check": "node scripts/check.mjs",
     "test": "node --experimental-test-module-mocks --test tests/*.test.mjs",
-    "dev": "node scripts/dev.mjs"
+    "dev": "node scripts/dev.mjs",
+    "start": "node app.mjs"
   },
   "engines": {
     "node": ">=24"
