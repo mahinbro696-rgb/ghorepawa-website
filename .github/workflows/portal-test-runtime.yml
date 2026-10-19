@@ -1,0 +1,30 @@
+name: Isolated portal test runtime
+on:
+  push:
+    branches: [feature/portal-management-v2]
+    paths: [.github/workflows/portal-test-runtime.yml]
+permissions:
+  contents: read
+jobs:
+  runtime:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - name: Package dependencies for isolated offline tests
+        run: |
+          mkdir -p .runtime
+          cp "$(command -v node)" .runtime/node
+          tar -czf /tmp/portal-runtime.tar.gz .runtime node_modules
+      - uses: actions/upload-artifact@v4
+        with:
+          name: portal-test-runtime
+          path: /tmp/portal-runtime.tar.gz
+          retention-days: 1
