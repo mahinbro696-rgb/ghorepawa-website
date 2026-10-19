@@ -14,7 +14,7 @@ let toastTimer;
 function toast(message){const el=document.querySelector('#toast');el.textContent=message;clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.textContent='',5500);}
 async function api(path,options={}){
  let response;
- try{response=await fetch('/api/'+path,{credentials:'same-origin',cache:'no-store',...options,headers:{...(options.body?{'Content-Type':'application/json'}:{}),...options.headers},signal:AbortSignal.timeout(45000)});}catch{throw new Error('সংযোগ পাওয়া যাচ্ছে না। ইন্টারনেট পরীক্ষা করে আবার চেষ্টা করুন।');}
+ try{response=await fetch('/api/'+path,{credentials:'same-origin',cache:'no-store',...options,headers:{...(options.body?{'Content-Type':'application/json'}:{}),...options.headers},signal:typeof AbortSignal.timeout==='function'?AbortSignal.timeout(45000):undefined});}catch{throw new Error('সংযোগ পাওয়া যাচ্ছে না। ইন্টারনেট পরীক্ষা করে আবার চেষ্টা করুন।');}
  let data;try{data=await response.json();}catch{throw new Error('সার্ভারের উত্তর পাওয়া যায়নি। কিছুক্ষণ পরে চেষ্টা করুন।');}
  if(!response.ok){if(response.status===401&&user){user=null;renderLogin();}throw new Error(data.error||'কাজটি সম্পন্ন হয়নি।');}return data;
 }

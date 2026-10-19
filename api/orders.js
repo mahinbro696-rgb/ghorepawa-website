@@ -39,12 +39,12 @@ export default endpoint(['GET','POST','PATCH'],async(req,res)=>{
     if(!Array.isArray(data.ids)||!data.ids.length||data.ids.length>200)throw new AppError(400,'১–২০০টি অর্ডার নির্বাচন করুন।');
     const ids=[...new Set(data.ids.map(uuid))].sort(),target=text(data.assignee,'মডারেটর',1,100);
     await transaction(async client=>{
-      const staff=(await client.query("SELECT id FROM team_members WHERE id=$1 AND role='moderator' AND status='active' FOR SHARE",[target])).rows[0];
+      const staff=(await client.query("SELECT id,name FROM team_members WHERE id=$1 AND role='moderator' AND status='active' FOR SHARE",[target])).rows[0];
       if(!staff)throw new AppError(400,'সক্রিয় মডারেটর নির্বাচন করুন।');
       const rows=(await client.query('SELECT id,status,assigned_to FROM shop_orders WHERE id=ANY($1::uuid[]) ORDER BY id FOR UPDATE',[ids])).rows;
       if(rows.length!==ids.length||rows.some(o=>!canAssign(o)))throw new AppError(409,'কিছু অর্ডারের অবস্থা বদলেছে বা বরাদ্দযোগ্য নয়। তালিকা রিফ্রেশ করুন।');
       await client.query("UPDATE shop_orders SET assigned_to=$2,status='assigned',assigned_at=now(),callback_at=NULL,updated_at=now(),version=version+1 WHERE id=ANY($1::uuid[])",[ids,target]);
-      for(const o of rows)await client.query("INSERT INTO order_events(order_id,actor_id,kind,from_status,to_status,note) VALUES($1,$2,'assigned',$3,'assigned',$4)",[o.id,user.id,o.status,`মডারেটর: ${target}`]);
+      for(const o of rows)await client.query("INSERT INTO order_events(order_id,actor_id,kind,from_status,to_status,note) VALUES($1,$2,'assigned',$3,'assigned',$4)",[o.id,user.id,o.status,`মডারেটর: ${staff.name}`]);
     });return res.json({ok:true,count:ids.length});
   }
   const id=uuid(data.id),note=text(data.note||'','নোট',0,1500);

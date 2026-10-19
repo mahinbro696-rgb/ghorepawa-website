@@ -36,6 +36,7 @@ orderForm.addEventListener('submit', async event => {
   textFields.forEach(field => { field.value = field.value.trim(); validateTextField(field); });
   if (!orderForm.reportValidity()) return;
   orderSubmitting = true;
+  orderForm.querySelectorAll('input,textarea').forEach(field => { field.readOnly = true; });
   const submit = orderForm.querySelector('[type="submit"]');
   submit.disabled = true;
   submit.textContent = 'অর্ডার জমা হচ্ছে…';
@@ -50,7 +51,7 @@ orderForm.addEventListener('submit', async event => {
   try { sessionStorage.setItem('ever-strong-order-attempt', JSON.stringify(orderAttempt)); } catch {}
     const response = await fetch('/api/orders', {
       method:'POST', headers:{'Content-Type':'application/json','Idempotency-Key':orderAttempt.key},
-      body:JSON.stringify(payload), signal:AbortSignal.timeout(45000)
+      body:JSON.stringify(payload), signal:typeof AbortSignal.timeout === 'function' ? AbortSignal.timeout(45000) : undefined
     });
     const result = await response.json();
     if (!response.ok) throw new Error(result.error || 'অর্ডার জমা হয়নি। আবার চেষ্টা করুন।');
@@ -63,6 +64,7 @@ orderForm.addEventListener('submit', async event => {
     formStatus.dataset.state = 'error';
   } finally {
     orderSubmitting = false;
+    orderForm.querySelectorAll('input,textarea').forEach(field => { field.readOnly = false; });
     submit.disabled = false;
     submit.textContent = 'অর্ডার জমা দিন →';
     document.querySelector('#minus').disabled = quantity <= 1;
