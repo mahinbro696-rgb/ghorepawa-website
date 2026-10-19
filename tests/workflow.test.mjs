@@ -47,9 +47,10 @@ test('complete persisted order/team/2FA workflow against embedded PostgreSQL',as
  const backup=ok(await admin('/api/export'));assert.equal(backup.shop_orders.length,1);assert(backup.order_events.length>=7);assert(!JSON.stringify(backup).includes(password));assert.equal((await mod('/api/export')).status,403);
  ok(await admin('/api/team','PATCH',{id:moderator.id,status:'disabled'}));assert.equal((await mod('/api/orders')).status,401);
  ok(await admin('/api/team','PATCH',{action:'password',id:moderator.id,password:password+'x'}));ok(await admin('/api/team','PATCH',{id:moderator.id,status:'active'}));ok(await mod('/api/login','POST',{username:'moderator1',password:password+'x'}));
+ const olderSession=client();ok(await olderSession('/api/login','POST',{username:'admin',password}));
  const enrollment=ok(await admin('/api/security','POST',{action:'enable',password}));assert(enrollment.qr.startsWith('data:image/png'));assert.equal(enrollment.backupCodes.length,10);
  const code=await createOTP(new TextDecoder().decode(base32.decode(enrollment.secret)),{digits:6,period:30}).totp();
- ok(await admin('/api/security','POST',{action:'verify',code}));assert.equal(ok(await admin('/api/security')).enabled,true);
+ ok(await admin('/api/security','POST',{action:'verify',code}));assert.equal(ok(await admin('/api/security')).enabled,true);assert.equal((await olderSession('/api/orders')).status,401);
  ok(await admin('/api/session','POST',{action:'logout'}));
  assert.equal(ok(await admin('/api/login','POST',{username:'admin',password})).twoFactorRedirect,true);
  assert.equal((await admin('/api/orders')).status,401);

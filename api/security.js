@@ -11,8 +11,20 @@ export default endpoint(['GET','POST'],async(req,res)=>{
  if(data.action==='verify'||data.action==='recover'){
   const code=text(data.code,'কোড',6,100);
   if(data.action==='verify'&&!/^\d{6}$/.test(code))throw new AppError(400,'৬ সংখ্যার কোড লিখুন।');
+  const before=await auth.api.getSession({headers:headers(req)});
   const result=await (data.action==='verify'?auth.api.verifyTOTP:auth.api.verifyBackupCode)({...common,body:{code,trustDevice:false}});
   if(!result.ok)throw new AppError(400,'কোড সঠিক নয় অথবা মেয়াদ শেষ। নতুন কোড দিয়ে চেষ্টা করুন।');
+  const nextHeaders=headers(req),cookies=new Map((nextHeaders.get('cookie')||'').split(';').filter(Boolean).map(pair=>{const i=pair.indexOf('=');return [pair.slice(0,i).trim(),pair.slice(i+1)];}));
+  for(const cookie of result.headers.getSetCookie()){const pair=cookie.split(';')[0],i=pair.indexOf('=');cookies.set(pair.slice(0,i),pair.slice(i+1));}
+  nextHeaders.set('cookie',[...cookies].map(([key,value])=>key+'='+value).join('; '));
+  const current=await auth.api.getSession({headers:nextHeaders});
+  if(!current)throw new AppError(401,'আবার লগইন করুন।');
+  const staff=(await getPool().query('SELECT status FROM team_members WHERE id=$1',[current.user.id])).rows[0];
+  if(staff?.status!=='active')throw new AppError(403,'অ্যাকাউন্টটি সক্রিয় নেই।');
+  if(before&&!before.user.twoFactorEnabled&&current.user.twoFactorEnabled){
+   await getPool().query('DELETE FROM team_auth_sessions WHERE "userId"=$1 AND id<>$2',[current.user.id,current.session.id]);
+   await getPool().query("INSERT INTO team_events(actor_id,target_id,kind) VALUES($1,$1,'2fa-enabled')",[current.user.id]);
+  }
   return sendAuthResponse(res,result);
  }
  const member=await actor(req);
@@ -28,8 +40,8 @@ export default endpoint(['GET','POST'],async(req,res)=>{
  }
  if(data.action==='disable'){
   // Require the existing second factor as well as password for sensitive disable.
-  const code=text(data.code,'Authenticator কোড',6,6);
-  const verified=await auth.api.verifyTOTP({...common,body:{code,trustDevice:false}});
+  const code=text(data.code,'Authenticator / ব্যাকআপ কোড',6,100);
+  const verified=await (/^\d{6}$/.test(code)?auth.api.verifyTOTP:auth.api.verifyBackupCode)({...common,body:{code,trustDevice:false}});
   if(!verified.ok)throw new AppError(400,'Authenticator কোড সঠিক নয়।');
   const result=await auth.api.disableTwoFactor({...common,body:{password}});
   if(!result.ok)throw new AppError(400,'পাসওয়ার্ড সঠিক নয় অথবা পরিবর্তন করা যায়নি।');
