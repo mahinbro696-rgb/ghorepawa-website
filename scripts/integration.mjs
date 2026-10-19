@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {randomUUID,randomBytes} from 'node:crypto';
-const base=process.env.TEST_ORIGIN,token=process.env.TEST_SETUP_TOKEN,bypass=process.env.TEST_BYPASS;
-if(!base||!token)throw Error('Test origin and setup token are required');
+const base=process.env.TEST_ORIGIN,token=process.env.TEST_PASSWORD,bypass=process.env.TEST_BYPASS;
+if(!base||!token)throw Error('Test origin and owner password are required');
 const pass=randomBytes(20).toString('base64url'),prefix='test'+Date.now().toString(36);
 function client(){let cookies=new Map();return async(path,method='GET',data,extra={})=>{
  const url=new URL(path,base);if(bypass)url.searchParams.set('x-vercel-protection-bypass',bypass);
@@ -12,11 +12,10 @@ function client(){let cookies=new Map();return async(path,method='GET',data,extr
 const owner=client(),mod=client(),other=client(),publicClient=client();
 function ok(result,status=200){assert.equal(result.status,status,JSON.stringify(result.body));return result.body;}
 console.log('Testing preview database initialization…');
-assert.equal(ok(await owner('/api/setup')).configured,false);
-ok(await owner('/api/setup','POST',{token,name:'পরীক্ষামূলক অ্যাডমিন',username:prefix,password:pass}),201);
-assert.equal((await owner('/api/setup','POST',{token,name:'দ্বিতীয় অ্যাডমিন',username:prefix+'2',password:pass})).status,409);
-ok(await owner('/api/login','POST',{username:prefix,password:pass}));assert.equal(ok(await owner('/api/session')).user.role,'admin');
-console.log('PASS: one owner only and cookie login');
+assert.equal(ok(await owner('/api/setup')).configured,true);
+assert.equal((await owner('/api/setup','POST',{})).status,405);
+ok(await owner('/api/login','POST',{username:process.env.TEST_USERNAME||'admin',password:token}));assert.equal(ok(await owner('/api/session')).user.role,'admin');
+console.log('PASS: direct owner login and public setup disabled');
 for(const suffix of ['a','b'])ok(await owner('/api/team','POST',{name:'পরীক্ষামূলক মডারেটর '+suffix,username:prefix+suffix,password:pass}),201);
 assert.equal((await mod('/api/login','POST',{username:prefix+'a',password:pass})).status,403);
 const people=ok(await owner('/api/team')).members.filter(x=>x.role==='moderator');assert.equal(people.length,2);

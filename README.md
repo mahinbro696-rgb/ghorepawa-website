@@ -10,14 +10,14 @@ Required server-only environment variables:
 
 - `DATABASE_URL`: the existing Neon integration connection string.
 - `BETTER_AUTH_SECRET`: a random authentication secret of at least 32 bytes.
-- `ADMIN_SETUP_HASH`: SHA-256 hash of a random one-time owner setup token.
+- `ADMIN_INITIAL_PASSWORD_HASH`: a Better Auth password hash for the one-time `admin` owner bootstrap. The plaintext password is never stored in source code.
 - `APP_ORIGIN` (optional): canonical site origin. Vercel deployment hostnames are otherwise used automatically.
 
 Never put these values in public assets, client-side build variables, source control, logs or chat attachments. `.env*` is ignored. Preview and production databases must stay separate.
 
-## First owner
+## Owner login
 
-Open `/admin/setup` and enter the privately supplied setup token, your name, a unique username and a password of at least 12 characters. The endpoint permits exactly one main admin, enforced by a transaction lock and a unique database index. Public account signup is not exposed. Credentials are hashed by Better Auth; login uses HTTP-only cookies. Team members are provisioned in the panel and remain pending until the owner activates them.
+The owner logs in directly at /admin with username admin. A server-only Better Auth password hash initializes the account. No public setup code or public owner signup exists. A database transaction and revision marker apply this configuration once, so later password changes are preserved. Changing the configured hash explicitly triggers a one-time owner password reset and revokes existing owner sessions. Team members are created in the panel and remain pending until activated. Cookies are HTTP-only and credentials are hashed by Better Auth.
 
 ## Workflow
 

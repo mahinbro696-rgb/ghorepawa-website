@@ -1,9 +1,11 @@
 import {getMigrations} from 'better-auth/db/migration';
 import {getAuth} from './auth.mjs';
 import {transaction} from './db.mjs';
+import {bootstrapOwner} from './bootstrap.mjs';
 let ready;
 export function ensureSchema(){
-  return ready ||= transaction(async client=>{
+  return ready ||= (async()=>{
+    await transaction(async client=>{
     await client.query("SELECT pg_advisory_xact_lock(823709415)");
     await client.query('CREATE TABLE IF NOT EXISTS shop_schema (version integer PRIMARY KEY, created_at timestamptz NOT NULL DEFAULT now())');
     if((await client.query('SELECT version FROM shop_schema WHERE version=1')).rows.length)return;
@@ -39,5 +41,7 @@ export function ensureSchema(){
     await client.query(`CREATE TABLE IF NOT EXISTS team_events (id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,actor_id text REFERENCES team_members(id),target_id text REFERENCES team_members(id),kind text NOT NULL,created_at timestamptz NOT NULL DEFAULT now())`);
     await client.query(`CREATE TABLE IF NOT EXISTS request_limits (key text PRIMARY KEY,hits integer NOT NULL,expires_at timestamptz NOT NULL)`);
     await client.query('INSERT INTO shop_schema(version) VALUES(1)');
-  }).catch(error=>{ready=null;throw error;});
+    });
+    await bootstrapOwner();
+  })().catch(error=>{ready=null;throw error;});
 }

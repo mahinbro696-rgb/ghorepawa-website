@@ -9,6 +9,7 @@ export function getAuth() {
     appName:'Ever Strong Team',
     baseURL:process.env.APP_ORIGIN || ((process.env.VERCEL_ENV==='preview'?process.env.VERCEL_URL:process.env.VERCEL_PROJECT_PRODUCTION_URL) ? `https://${process.env.VERCEL_ENV==='preview'?process.env.VERCEL_URL:process.env.VERCEL_PROJECT_PRODUCTION_URL}` : 'http://localhost:3000'),
     basePath:'/api/auth',
+    trustedOrigins:[process.env.APP_ORIGIN,...[process.env.VERCEL_URL,process.env.VERCEL_BRANCH_URL,process.env.VERCEL_PROJECT_PRODUCTION_URL].filter(Boolean).map(host=>'https://'+host)].filter(Boolean),
     secret:process.env.BETTER_AUTH_SECRET,
     database:getPool(),
     user:{modelName:'team_auth_users'},
