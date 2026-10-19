@@ -528,3 +528,15 @@ input:autofill{box-shadow:0 0 0 100px #1b3022 inset;-webkit-text-fill-color:#f1f
 
 .closing-poster{padding-top:30px;padding-bottom:30px}
 @media(max-width:700px){.closing-poster{padding-top:22px;padding-bottom:100px}}
+
+
+/* Persistent purchase and call actions with touch-friendly targets. */
+.floating-actions{position:fixed;right:max(18px,env(safe-area-inset-right));bottom:calc(18px + env(safe-area-inset-bottom));z-index:50;display:flex;flex-direction:column;align-items:stretch;gap:10px}
+.floating-actions .floating-action{display:flex;align-items:center;justify-content:center;gap:10px;min-height:50px;padding:12px 19px;border:1px solid #ecd39488;border-radius:15px;font:700 16px/1.6 'Noto Sans Bengali',sans-serif;box-shadow:0 6px 20px #0005;touch-action:manipulation}
+.floating-action svg{width:22px;height:22px;flex:0 0 22px}
+.floating-actions .floating-order{background:linear-gradient(115deg,#d2af65,#f2dda5);color:#15251b}
+.floating-actions .floating-call{background:#14583c;color:#fff4d4;border-color:#80b69799}
+.floating-actions .floating-action:focus-visible{outline:3px solid #fff0c8;outline-offset:4px}
+.closing-poster{padding-bottom:150px}
+@media(hover:hover){.floating-actions .floating-order:hover{background:#ffe6a6}.floating-actions .floating-call:hover{background:#1c704d}}
+@media(max-width:700px){.floating-actions{right:max(12px,env(safe-area-inset-right));bottom:calc(12px + env(safe-area-inset-bottom));gap:8px}.floating-actions .floating-action{min-height:48px;padding:11px 14px;font-size:14px;border-radius:13px;gap:8px}.floating-action svg{width:20px;height:20px;flex-basis:20px}.closing-poster{padding-bottom:145px}}
