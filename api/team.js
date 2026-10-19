@@ -7,13 +7,15 @@ import {AppError,text,username,password} from '../server/domain.mjs';
 export default endpoint(['GET','POST','PATCH'],async(req,res)=>{
   const admin=await actor(req,true);
   if(req.method==='GET'){
-    if(new URL(req.url,'https://local').searchParams.get('compact')==='1')return res.json({members:(await getPool().query('SELECT id,username,name,role,status FROM team_members ORDER BY name,id')).rows});
-    const {rows}=await getPool().query(`SELECT m.id,m.username,m.name,m.role,m.status,m.created_at,
-      count(o.id)::int AS total_orders,
-      count(o.id) FILTER(WHERE o.status IN('assigned','callback'))::int AS pending_orders,
-      count(o.id) FILTER(WHERE o.status IN('confirmed','approved','dispatched','delivered'))::int AS confirmed_orders,
-      count(o.id) FILTER(WHERE o.status='unapproved')::int AS unapproved_orders
-      FROM team_members m LEFT JOIN shop_orders o ON o.assigned_to=m.id GROUP BY m.id ORDER BY m.created_at`);
+    if(new URL(req.url,'https://local').searchParams.get('compact')==='1')return res.json({members:(await getPool().query('SELECT id,username,name,role,status,badge_number FROM team_members ORDER BY name,id')).rows});
+    const {rows}=await getPool().query(`SELECT m.id,m.username,m.name,m.role,m.status,m.created_at,m.badge_number,
+      (SELECT count(*)::int FROM shop_orders o WHERE o.assigned_to=m.id AND o.status IN('assigned','callback')) AS pending_orders,
+      (SELECT count(*)::int FROM moderator_work_history h WHERE h.moderator_id=m.id) AS submitted_orders,
+      (SELECT count(*)::int FROM moderator_work_history h WHERE h.moderator_id=m.id AND h.outcome='confirmed') AS confirmed_orders,
+      (SELECT count(*)::int FROM moderator_work_history h WHERE h.moderator_id=m.id AND h.outcome IN('unapproved','cancelled')) AS unapproved_orders,
+      (SELECT count(*)::int FROM moderator_work_history h WHERE h.moderator_id=m.id AND h.outcome='callback') AS callback_orders
+      FROM team_members m ORDER BY m.badge_number`);
+    for(const row of rows)row.total_orders=row.pending_orders+row.submitted_orders;
     return res.json({members:rows});
   }
   const data=await body(req);

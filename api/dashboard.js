@@ -1,7 +1,12 @@
 import {endpoint,actor} from '../server/http.mjs';
 import {getPool} from '../server/db.mjs';
 export default endpoint(['GET'],async(req,res)=>{
-  const user=await actor(req),args=user.role==='admin'?[]:[user.id];
+  const user=await actor(req);
+  if(user.role!=='admin'){
+    const {rows}=await getPool().query("SELECT count(*)::int AS inbox,count(*) FILTER(WHERE status='callback')::int AS callbacks FROM shop_orders WHERE assigned_to=$1 AND status IN('assigned','callback')",[user.id]);
+    return res.json({work:rows[0]});
+  }
+  const args=[];
   const scope=user.role==='admin'?'TRUE':'assigned_to=$1';
   const [totals,daily,recent]=await Promise.all([
     getPool().query(`SELECT count(*)::int AS orders,

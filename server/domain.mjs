@@ -33,9 +33,9 @@ export function transition(actor, order, next, note, callbackAt) {
   if (!statuses.includes(next)) throw new AppError(400, 'অর্ডারের অবস্থা সঠিক নয়।');
   if (actor.role === 'moderator') {
     if (order.assigned_to !== actor.id) throw new AppError(403, 'এই অর্ডারটি আপনার জন্য বরাদ্দ নেই।');
-    if (!['assigned','callback'].includes(order.status) || !['callback','confirmed','unapproved'].includes(next)) throw new AppError(409, 'এই অর্ডারের অবস্থায় মডারেটর পরিবর্তন করতে পারবেন না।');
+    if (!['assigned','callback'].includes(order.status) || !['callback','confirmed','unapproved','cancelled'].includes(next)) throw new AppError(409, 'এই অর্ডারের অবস্থায় মডারেটর পরিবর্তন করতে পারবেন না।');
   } else {
-    const allowed = {new:['cancelled'],assigned:['callback','confirmed','unapproved','cancelled'],callback:['callback','confirmed','unapproved','cancelled'],confirmed:['approved','unapproved'],approved:['dispatched','cancelled'],dispatched:['delivered','cancelled'],unapproved:['cancelled']};
+    const allowed = {new:['cancelled'],assigned:['callback','confirmed','unapproved','cancelled'],callback:['callback','confirmed','unapproved','cancelled'],confirmed:['approved','dispatched','unapproved','cancelled'],approved:['dispatched','cancelled'],dispatched:['delivered','cancelled'],unapproved:['cancelled']};
     if (!allowed[order.status]?.includes(next)) throw new AppError(409, 'এই পরিবর্তনটি এখন করা যাবে না। বরাদ্দ পরিবর্তনের জন্য Assign ব্যবহার করুন।');
   }
   if (['unapproved','cancelled','callback'].includes(next) && !note?.trim()) throw new AppError(400, 'কারণ বা কলের নোট লিখুন।');

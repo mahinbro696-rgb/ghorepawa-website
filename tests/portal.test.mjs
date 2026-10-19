@@ -77,8 +77,8 @@ test('portal products, inventory, notifications, uploads and role boundaries',as
   ok(await mod('/api/login','POST',{username:'mod01',password}));ok(await other('/api/login','POST',{username:'mod02',password}));
   assert.equal((await mod('/api/products')).status,403);assert.equal((await mod('/api/products','POST',{...definition,sku:'FORBIDDEN'})).status,403);
   ok(await admin('/api/orders','PATCH',{action:'assign',ids:[defaultOrder.id],assignee:moderator.id}));
-  assert.equal(ok(await other('/api/orders?id='+defaultOrder.id)).total,0);assert.equal(ok(await other('/api/dashboard')).totals.orders,0);
-  assert.equal(ok(await mod('/api/dashboard')).totals.orders,1);
+  assert.equal(ok(await other('/api/orders?id='+defaultOrder.id)).total,0);assert.equal(ok(await other('/api/dashboard')).work.inbox,0);
+  assert.equal(ok(await mod('/api/dashboard')).work.inbox,1);
   assert(ok(await mod('/api/notifications')).items.every(n=>n.order_id===defaultOrder.id));assert.equal(ok(await other('/api/notifications')).items.length,0);
   defaultOrder=ok(await mod('/api/orders')).orders[0];
   assert.equal((await mod('/api/orders','PATCH',{action:'status',id:defaultOrder.id,version:defaultOrder.version,status:'approved',note:'No privilege'})).status,409);

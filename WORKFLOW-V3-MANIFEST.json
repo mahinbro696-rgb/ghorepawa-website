@@ -1,0 +1,38 @@
+{
+  "release": "Ghorepawa Glass Workflow v3",
+  "branch": "feature/glass-workflow-v3",
+  "baseCommit": "bdb63e83668be54c4cb4f7375e7bab1c58ea571e",
+  "requires": "Portal v2 already installed",
+  "applicationRoot": "/home/bazarxbd/ghorepawa-app",
+  "schemaVersion": 4,
+  "restartRequired": true,
+  "npmInstallRequired": false,
+  "newFiles": [
+    "api/workhistory.js",
+    "public/admin/work.js",
+    "server/workflow.mjs"
+  ],
+  "modifiedFiles": [
+    "api/dashboard.js",
+    "api/export.js",
+    "api/history.js",
+    "api/notifications.js",
+    "api/orders.js",
+    "api/team.js",
+    "app.mjs",
+    "public/admin/admin.css",
+    "public/admin/admin.js",
+    "public/admin/index.html",
+    "public/admin/portal.js",
+    "server/domain.mjs",
+    "server/schema.mjs"
+  ],
+  "preserve": [
+    "node_modules",
+    ".env",
+    "public/uploads",
+    "cPanel Passenger configuration",
+    "all current environment variables"
+  ],
+  "warning": "Permanent deletion changes retention policy for explicitly confirmed admin single-order erasure only; installation erases no orders."
+}

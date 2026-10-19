@@ -1,9 +1,9 @@
 import {endpoint,actor,body} from '../server/http.mjs';
 import {getPool} from '../server/db.mjs';
-import {AppError} from '../server/domain.mjs';
+import {AppError,uuid} from '../server/domain.mjs';
 export default endpoint(['GET','PATCH'],async(req,res)=>{
   const user=await actor(req),pool=getPool();
-  const scope=user.role==='admin'?'TRUE':'o.assigned_to=$1';
+  const scope=user.role==='admin'?'TRUE':"o.assigned_to=$1 AND o.status IN('assigned','callback') AND e.kind='assigned' AND e.created_at>=o.assigned_at";
   const where=`${scope} AND e.kind IN('created','assigned','status') AND (e.actor_id IS NULL OR e.actor_id<>$1)`;
   const summary=await pool.query(`SELECT COALESCE(max(e.id),0)::text AS latest,
     count(*) FILTER(WHERE e.id>COALESCE((SELECT read_through FROM portal_notice_state WHERE user_id=$1),0))::int AS unread
@@ -26,5 +26,13 @@ export default endpoint(['GET','PATCH'],async(req,res)=>{
     pool.query('SELECT read_through::text FROM portal_notice_state WHERE user_id=$1',[user.id]),
     pool.query(`SELECT count(*)::int AS count FROM shop_orders o WHERE ${user.role==='admin'?'TRUE':'o.assigned_to=$1'} AND status='callback' AND callback_at<=now()`,user.role==='admin'?[]:[user.id])
   ]);
-  res.json({items:items.rows.slice(0,30),hasMore:items.rows.length>30,latestId:latest,unread:summary.rows[0].unread,readThrough:state.rows[0]?.read_through||'0',due:due.rows[0].count});
+  let accessibleIds;
+  if(user.role!=='admin'){
+    const tracked=new URL(req.url,'https://local').searchParams.get('tracked')||'';
+    const ids=tracked?tracked.split(','):[];
+    if(ids.length>31)throw new AppError(400,'Too many tracked orders.');
+    ids.forEach(uuid);
+    accessibleIds=ids.length?(await pool.query("SELECT id FROM shop_orders WHERE assigned_to=$1 AND status IN('assigned','callback') AND id=ANY($2::uuid[])",[user.id,ids])).rows.map(o=>o.id):[];
+  }
+  res.json({accessibleIds,items:items.rows.slice(0,30),hasMore:items.rows.length>30,latestId:latest,unread:summary.rows[0].unread,readThrough:state.rows[0]?.read_through||'0',due:due.rows[0].count});
 });

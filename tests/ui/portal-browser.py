@@ -39,6 +39,7 @@ def route_api(route):
         out={'orders':selected,'total':len(selected),'page':1,'pageSize':30,'stats':{'new':12,'assigned':8,'confirmed':5,'approved':10,'delivered':146}}
     elif name=='team':out={'members':[dict(admin,status='active',total_orders=0,pending_orders=0,confirmed_orders=0),dict(mod,status='active',total_orders=19,pending_orders=8,confirmed_orders=11)]}
     elif name=='history':out={'events':[{'kind':'created','created_at':'2026-10-19T12:00:00Z','note':'','actor_name':None}]}
+    elif name=='workhistory':out={'items':[],'page':1,'pageSize':30,'total':0}
     elif name=='security':out={'enabled':False}
     elif name=='notifications':
         if method=='PATCH':state['readThrough']=str(data['through']);out={'ok':True}
@@ -81,7 +82,7 @@ try:
     page.locator('#logout').click();page.locator('#login-form').wait_for();assert not state['signed']
     print('PASS desktop: dashboard, orders, detail/history, products, notifications, settings, team, logout')
     state['signed']=True;state['role']='moderator';c.close();c,page=start_page(browser)
-    page.goto(origin+'/moderator');page.locator('h1',has_text='Your work, at a glance').wait_for();assert page.locator('[data-view="products"]').count()==0;assert page.locator('[data-view="team"]').count()==0
+    page.goto(origin+'/moderator');page.locator('h1',has_text='My work inbox').wait_for();assert page.locator('[data-view="products"]').count()==0;assert page.locator('[data-view="team"]').count()==0
     page.locator('[data-view="orders"]').click();page.locator('#filter-form').wait_for();assert page.locator('#assign').count()==0
     print('PASS moderator: restricted menus and no admin bulk assignment')
     c.close();state['role']='admin';c,page=start_page(browser,mobile=True);page.goto(origin+'/admin');page.locator('.stats.summary').wait_for()

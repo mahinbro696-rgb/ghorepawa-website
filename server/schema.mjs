@@ -3,6 +3,7 @@ import {getAuth} from './auth.mjs';
 import {transaction} from './db.mjs';
 import {upgradeSchema} from './upgrade.mjs';
 import {upgradePortal} from './products.mjs';
+import {upgradeWorkflow} from './workflow.mjs';
 import {bootstrapOwner} from './bootstrap.mjs';
 let ready;
 export function ensureSchema(){
@@ -46,6 +47,7 @@ export function ensureSchema(){
     });
     await upgradeSchema();
     await upgradePortal();
+    await upgradeWorkflow();
     await bootstrapOwner();
   })().catch(error=>{ready=null;throw error;});
 }

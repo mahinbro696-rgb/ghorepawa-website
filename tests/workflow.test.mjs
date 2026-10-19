@@ -39,7 +39,9 @@ test('complete persisted order/team/2FA workflow against embedded PostgreSQL',as
  assert.equal(ok(await other('/api/orders')).total,0);assert.equal((await other('/api/history?id='+item.id)).status,403);
  item=ok(await mod('/api/orders')).orders[0];assert.equal((await mod('/api/orders','PATCH',{action:'status',id:item.id,version:item.version,status:'approved',note:''})).status,409);
  ok(await mod('/api/orders','PATCH',{action:'status',id:item.id,version:item.version,status:'callback',note:'Call later',callbackAt:new Date(Date.now()+3600000).toISOString()}));
- assert.equal((await mod('/api/orders','PATCH',{action:'note',id:item.id,version:item.version,note:'Stale note'})).status,409);
+ assert.equal((await mod('/api/orders','PATCH',{action:'note',id:item.id,version:item.version,note:'Stale note'})).status,403);
+ assert.equal(ok(await mod('/api/orders')).total,0);
+ ok(await admin('/api/orders','PATCH',{action:'assign',ids:[item.id],assignee:moderator.id}));
  item=ok(await mod('/api/orders')).orders[0];ok(await mod('/api/orders','PATCH',{action:'status',id:item.id,version:item.version,status:'confirmed',note:'Confirmed'}));
  for(const status of ['approved','dispatched','delivered']){item=ok(await admin('/api/orders')).orders[0];ok(await admin('/api/orders','PATCH',{action:'status',id:item.id,version:item.version,status,note:'Reviewed'}));}
  assert(ok(await admin('/api/history?id='+item.id)).events.length>=7);

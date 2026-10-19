@@ -1,5 +1,5 @@
 dist/
-node_modules/
+node_modules
 .env
 .env.*
 !.env.example
@@ -9,3 +9,6 @@ server/config.local.php
 
 public/uploads/
 .test-results/
+
+__pycache__/
+*.pyc

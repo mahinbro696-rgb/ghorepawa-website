@@ -5,7 +5,7 @@ import {fileURLToPath} from 'node:url';
 
 const root=path.join(path.dirname(fileURLToPath(import.meta.url)), 'public');
 const mime={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.json':'application/json; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.webp':'image/webp','.gif':'image/gif','.ico':'image/x-icon','.woff':'font/woff','.woff2':'font/woff2'};
-const apiNames=new Set(['auth','export','history','login','orders','security','session','setup','team','products','catalog','dashboard','notifications','upload']);
+const apiNames=new Set(['auth','export','history','login','orders','security','session','setup','team','products','catalog','dashboard','notifications','upload','workhistory']);
 const port=Number(process.env.PORT||3000);
 if(!Number.isInteger(port)||port<1||port>65535)throw Error('Invalid PORT');
 if(!process.env.DATABASE_URL||!process.env.BETTER_AUTH_SECRET||!process.env.APP_ORIGIN){
