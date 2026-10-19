@@ -1,0 +1,35 @@
+name: Portal validation
+on:
+  push:
+    branches: [feature/portal-management-v2]
+  pull_request:
+    branches: [deploy/exonhost-node24]
+permissions:
+  contents: read
+concurrency:
+  group: portal-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - run: npm test
+      - name: Archive reviewed source (no credentials)
+        if: always()
+        run: git archive --format=tar.gz --output=portal-source.tar.gz HEAD
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: portal-source
+          path: portal-source.tar.gz
+          retention-days: 3
