@@ -4,3 +4,46 @@
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
 
 .security-card{margin-top:24px}.security-card h2{margin-bottom:12px}.security-card ol{padding-left:24px;line-height:1.9}.auth-qr{display:block;max-width:100%;height:auto;margin:20px auto}.backup-codes{white-space:pre-wrap;word-break:break-word;padding:16px;background:#eef4ef;border-radius:10px;font-size:16px}.security-card form{margin-top:20px}.auth-back{display:block;margin-top:16px}.security-card input[readonly]{font-family:monospace;font-size:15px}
+
+
+/* ExonHost dark navy dashboard theme — isolated to the admin/moderator UI */
+:root{
+  color-scheme:dark;
+  --ink:#e7eefc;--muted:#9baeca;--green:#3d82f6;
+  --line:#293b55;--paper:#17263c;--bg:#0b1525;--gold:#f3c776;
+}
+body{background:var(--bg);color:var(--ink)}
+.sidebar{background:#0b1424;color:#e6efff;border-right:1px solid #26374e}
+.sidebar .brand{border-bottom-color:#273950}
+.sidebar .brand small,.sidebar-bottom{color:#a6b9d4}
+.sidebar-bottom a{color:#a8caff}
+.nav-links button{color:#c4d3ea;transition:background-color .15s,color .15s}
+.nav-links button:hover{background:#203550}
+.nav-links button.active{background:#214677;color:#eaf3ff;box-shadow:inset 3px 0 #66a8ff}
+.topbar{background:#101e32;border-color:var(--line)}
+.user-chip .avatar{background:#233b59;color:#d5e7ff}
+.stat,.panel,.member-card,.settings-card{background:var(--paper);color:var(--ink);border-color:var(--line);box-shadow:0 5px 22px #050b1618}
+.stat.active{border-color:#5798fb;box-shadow:inset 0 3px #5798fb}
+.stat:hover{border-color:#53769f}
+.btn{background:#316bce;color:#fff}
+.btn:hover{background:#407fe7;filter:none}
+.btn.secondary{background:#223650;color:#e6efff;border-color:#38516f}
+.btn.danger{background:#442733;color:#ffbcc3;border-color:#65404b}
+input,select,textarea{background:#101d30;color:#f0f5ff;border-color:#38506f}
+input::placeholder,textarea::placeholder{color:#8196b5}
+input:focus,select:focus,textarea:focus{border-color:#72a8fa;box-shadow:0 0 0 3px #5798fb33}
+a{color:#8dbbff}
+.auth-page{background:radial-gradient(ellipse at 18% 0%,#24518a55,transparent 60%),#091421}
+.auth-card{background:#17283d;border:1px solid #314765;box-shadow:0 30px 80px #02081399}
+.brand-mark{background:#f0c575;color:#16263f}
+.error,.notice{background:#482934;color:#ffd4da}
+:where(th,thead){background:#1b2c44;color:#c8daf2}
+:where(td,th){border-color:#2d405b}
+:where(tr:hover td){background:#1d3048}
+:where(dialog){background:#17263c;color:#eef4ff;border:1px solid #3c506c}
+:where(dialog::backdrop){background:#030916bd}
+:where(.badge,.pill){border-color:#46617f}
+:where(.filters,.bulk-bar,.pagination){border-color:#30435d}
+.backup-codes{background:#101e32;color:#edf4ff}
+button:focus-visible,a:focus-visible{outline-color:#8fc0ff}
+@media(prefers-reduced-motion:reduce){.nav-links button{transition:none}}
