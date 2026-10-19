@@ -1,0 +1,13 @@
+{
+  "release": "Ghorepawa Admin Compact",
+  "branch": "feature/admin-compact-polish",
+  "baseCommit": "5c9188120b7f943123f59e6c465c975f6d9da7d1",
+  "applicationRoot": "/home/bazarxbd/ghorepawa-app",
+  "newFiles": ["public/admin/admin-compact.css"],
+  "modifiedFiles": ["public/admin/admin.js", "public/admin/index.html"],
+  "uploadOrder": ["public/admin/admin-compact.css", "public/admin/admin.js", "public/admin/index.html"],
+  "restartRequired": false,
+  "npmInstallRequired": false,
+  "databaseMigration": false,
+  "preserve": ["public/admin/admin.css", "public/admin/portal.js", "public/admin/work.js", "api", "server", "public/uploads", "app.mjs", "node_modules", "all environment variables"]
+}

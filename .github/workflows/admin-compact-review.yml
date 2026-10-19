@@ -2,24 +2,24 @@ name: Admin compact review
 on:
   push:
     branches: [feature/admin-compact-polish]
-    paths: [.github/workflows/admin-compact-review.yml]
+  pull_request:
+    branches: [feature/admin-compact-polish]
 permissions:
-  contents: write
+  contents: read
 defaults:
   run:
     shell: bash
 concurrency:
   group: admin-compact-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   review:
-    if: github.repository == 'mahinbro696-rgb/ghorepawa-website' && github.ref == 'refs/heads/feature/admin-compact-polish'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: feature/admin-compact-polish
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
@@ -27,19 +27,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Apply checksum-verified presentation patch
-        run: |
-          mkdir -p compact-ci
-          if [ ! -f public/admin/admin-compact.css ]; then
-            python - <<'PY'
-          import pathlib, base64, lzma, hashlib
-          patch=lzma.decompress(base64.b64decode(pathlib.Path('.compact-transport.txt').read_text().strip(),validate=True))
-          assert hashlib.sha256(patch).hexdigest()=='31780f0ce774fa132738ad5f70803d7b4542b824f30182e51aa25eeb14cf895d', 'Patch integrity failure'
-          pathlib.Path('/tmp/compact.patch').write_bytes(patch)
-          PY
-            git apply --check /tmp/compact.patch
-            git apply --index /tmp/compact.patch
-          fi
+      - run: mkdir -p compact-ci
       - run: npm ci
       - name: Source and asset checks
         run: npm run check 2>&1 | tee compact-ci/check.log
@@ -55,28 +43,23 @@ jobs:
       - name: Real API order, moderator, callback and deletion acceptance
         if: ${{ !cancelled() }}
         run: python tests/ui/capture-runner.py tests/ui/workflow-browser.py 2>&1 | tee compact-ci/browser-workflow.log
-      - name: Publish tested changes only to the feature branch
-        run: |
-          if ! git diff --cached --quiet; then
-            git config user.name 'github-actions[bot]'
-            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            git commit -m 'Polish compact admin order table and fix team cache expiry and assignment controls'
-            git push origin HEAD:refs/heads/feature/admin-compact-polish
-          fi
       - name: Package three admin-only deployment files
         run: |
           python - <<'PY'
           import pathlib,zipfile,hashlib,json
-          files=['public/admin/admin-compact.css','public/admin/admin.js','public/admin/index.html']
+          manifest=json.loads(pathlib.Path('ADMIN-COMPACT-MANIFEST.json').read_text())
+          files=manifest['newFiles']+manifest['modifiedFiles']
+          assert len(files)==3
+          docs=['ADMIN-COMPACT-MANIFEST.json','ADMIN-COMPACT-START-BN.md','ADMIN-COMPACT-TEST-REPORT.md']
           with zipfile.ZipFile('compact-ci/ghorepawa-admin-compact-update.zip','w',zipfile.ZIP_DEFLATED) as z:
-            for p in files:z.write(p,p)
+            for p in files+docs:z.write(p,p)
             z.writestr('ADMIN-COMPACT-SHA256.json',json.dumps({p:hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest() for p in files},indent=2)+'\n')
           PY
       - name: Preserve source and diagnostics
         if: always()
         run: |
           mkdir -p compact-ci
-          git archive --format=tar.gz --output=compact-ci/reviewed-source.tar.gz "$(git write-tree)"
+          git archive --format=tar.gz --output=compact-ci/reviewed-source.tar.gz HEAD
           git rev-parse HEAD > compact-ci/source-commit.txt
           if [ -d .test-results/screenshots ]; then cp -r .test-results/screenshots compact-ci/; fi
           if [ -d .test-results/screenshots-v3 ]; then cp -r .test-results/screenshots-v3 compact-ci/; fi
