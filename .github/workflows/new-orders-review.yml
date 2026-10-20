@@ -2,9 +2,8 @@ name: New orders queue review
 on:
   push:
     branches: [feature/admin-new-orders-queue]
-    paths: [.github/workflows/new-orders-review.yml]
 permissions:
-  contents: write
+  contents: read
 concurrency:
   group: new-orders-${{ github.ref }}
   cancel-in-progress: false
@@ -18,8 +17,6 @@ jobs:
         shell: bash
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: feature/admin-new-orders-queue
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
@@ -27,20 +24,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Apply integrity-checked frontend patch
-        run: |
-          mkdir -p new-orders-ci
-          if [ -f .new-orders-runtime.txt ]; then
-            python - <<'PY'
-          from pathlib import Path
-          import base64,lzma,hashlib
-          patch=lzma.decompress(base64.b64decode(Path('.new-orders-runtime.txt').read_text().strip(),validate=True))
-          assert hashlib.sha256(patch).hexdigest()=='683750289b3d880feb27656d6f0d0108ab309f4a13e6bd6bc6522aa2351ebe87'
-          Path('/tmp/new-orders.patch').write_bytes(patch)
-          PY
-            git apply --check /tmp/new-orders.patch
-            git apply --index /tmp/new-orders.patch
-          fi
+      - run: mkdir -p new-orders-ci
       - run: npm ci
       - name: Syntax and asset validation
         run: npm run check 2>&1 | tee new-orders-ci/check.log
@@ -59,15 +43,6 @@ jobs:
         run: python tests/ui/inbox-search-browser.py 2>&1 | tee new-orders-ci/browser-search.log
       - name: New orders and bulk assignment browser acceptance
         run: python tests/ui/new-orders-browser.py 2>&1 | tee new-orders-ci/browser-new-orders.log
-      - name: Publish tested frontend only to isolated branch
-        run: |
-          if [ -f .new-orders-runtime.txt ]; then git rm .new-orders-runtime.txt; fi
-          if ! git diff --cached --quiet; then
-            git config user.name 'github-actions[bot]'
-            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            git commit -m 'Add separate admin New orders queue with selected-only assignment handoff'
-            git push origin HEAD:refs/heads/feature/admin-new-orders-queue
-          fi
       - name: Package only the four frontend files
         run: |
           python - <<'PY'
@@ -77,9 +52,8 @@ jobs:
           files=manifest['modifiedFiles'];assert len(files)==4 and not manifest['newFiles']
           hashes={p:hashlib.sha256(Path(p).read_bytes()).hexdigest() for p in files}
           with zipfile.ZipFile('new-orders-ci/ghorepawa-new-orders-update.zip','w',zipfile.ZIP_DEFLATED) as z:
-            for p in files+['NEW-ORDERS-MANIFEST.json','NEW-ORDERS-START-BN.md']:
+            for p in files+['NEW-ORDERS-MANIFEST.json','NEW-ORDERS-START-BN.md','NEW-ORDERS-TEST-REPORT.md']:
               z.write(p,p)
-            if Path('NEW-ORDERS-TEST-REPORT.md').exists(): z.write('NEW-ORDERS-TEST-REPORT.md')
             z.writestr('NEW-ORDERS-SHA256.json',json.dumps(hashes,indent=2)+'\n')
           print('Packaged four frontend files. No customer data, credentials or backend changes.')
           PY
