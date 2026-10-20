@@ -11,6 +11,9 @@ test('search normalizes reference/phone/Bengali digits without SQL interpolation
  assert.deepEqual(searchTerms('\u09e6\u09e7\u09ed\u09e6\u09e6\u09e6\u09e6\u09e6\u09e7\u09e8\u09e9'),['01700000123']);
  assert.deepEqual(searchTerms('  Nusrat   Dhaka  '),['Nusrat','Dhaka']);
  assert.deepEqual(searchTerms(''),[]);
+ assert.deepEqual(searchTerms('12-3'),['12-3']);
+ assert.deepEqual(searchTerms('+88017'),['017']);
+ assert.deepEqual(searchTerms('12 3'),['12','3']);
  const params=['existing'],where=[];
  appendOrderSearch("50%_!\\'",params,where);
  assert.equal(params[1],"%50!%!_!!\\'%");assert(!where[0].includes('50%'));assert(where[0].includes('$2'));
@@ -43,7 +46,7 @@ test('actual orders API: all partial matches, pagination, special characters and
  const local=await insert('Nusrat Jahan','House 12, Shared Lane',{phone:'01700000123',assigned:first.id,status:'assigned'});
  await insert('NUSRAT Rahman','House 25, Shared Lane',{assigned:second.id,status:'assigned'});
  const bn=await insert('\u09a8\u09c1\u09b8\u09b0\u09be\u09a4 \u0986\u0995\u09cd\u09a4\u09be\u09b0','\u09ac\u09be\u09b8\u09be \u09e7\u09e8, \u09b8\u09c7\u09a8\u09aa\u09be\u09dc\u09be',{district:'Rangpur',area:'Sadar'});
- await insert('Literal% Buyer','Apartment_One! \\ backslash');
+ await insert('Literal% Buyer','Apartment_One! \\ backslash, House 12-3');
  await insert('Callback Buyer','Return Road',{status:'callback'});
  for(let n=0;n<38;n++)await insert('Pagination Buyer '+n);
  const search=async(q,extra='',who=admin)=>ok(await who('/api/orders?'+new URLSearchParams({q})+extra));
@@ -51,12 +54,14 @@ test('actual orders API: all partial matches, pagination, special characters and
   assert.equal((await search('nusrat')).total,2);assert.equal((await search('SHARED')).total,40);
   assert.equal((await search('Jahan Dhaka')).total,1);assert.equal((await search('Dhan')).total,42);
   assert.equal((await search('rangpur')).orders[0].id,bn.id);
+  assert.equal((await search('12-3')).total,1);
   assert.equal((await search('\u09b8\u09c7\u09a8\u09aa\u09be\u09dc\u09be')).orders[0].id,bn.id);
   assert.equal((await search('Sadar 12')).orders[0].id,bn.id);
  });
  await t.test('reference variants and formatted/Bengali phone numbers work',async()=>{
   const q='es - '+local.reference;assert((await search(q)).orders.some(o=>o.id===local.id));
   assert.equal((await search('+88 (01700) 000-123')).total,1);
+  assert.equal((await search('+88017')).total,43);
   assert.equal((await search('\u09e6\u09e7\u09ed\u09e6\u09e6\u09e6\u09e6\u09e6\u09e7\u09e8\u09e9')).orders[0].id,local.id);
   assert.equal((await search('\u09a8\u09c1\u09b8\u09b0\u09be\u09a4')).orders[0].id,bn.id);
  });

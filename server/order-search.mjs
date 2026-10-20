@@ -7,7 +7,8 @@ export function searchTerms(value){
  // Accept pasted/formatted Bangladesh phones, including +880 and Bengali digits.
  else if(/^[+\d\s().-]+$/.test(q)){
   const digits=q.replace(/\D/g,'');
-  if(digits.length>=3)q=/^8801\d{9}$/.test(digits)?digits.slice(2):digits;
+  // Preserve numeric house numbers such as 12-3; compact only recognizable mobile prefixes.
+  if(digits.length>=5&&/^(?:88)?01[3-9]/.test(digits))q=digits.replace(/^88/,'');
  }
  return [...new Set(q.split(/\s+/).filter(Boolean))];
 }
