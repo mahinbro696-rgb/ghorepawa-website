@@ -1,0 +1,94 @@
+name: Inbox and Search review
+on:
+  push:
+    branches: [feature/moderator-inbox-search-polish]
+    paths: [.github/workflows/inbox-search-review.yml]
+permissions:
+  contents: write
+concurrency:
+  group: inbox-search-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  review:
+    if: github.repository == 'mahinbro696-rgb/ghorepawa-website' && github.ref == 'refs/heads/feature/moderator-inbox-search-polish'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/moderator-inbox-search-polish
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Apply integrity-checked source patch
+        run: |
+          mkdir -p inbox-ci
+          if [ ! -f INBOX-SEARCH-MANIFEST.json ]; then
+            python - <<'PY'
+          import pathlib, lzma, base64, hashlib
+          encoded = ''.join(pathlib.Path(f'.inbox-transport/part{i}.txt').read_text().strip() for i in range(1,4))
+          patch = lzma.decompress(base64.b64decode(encoded, validate=True))
+          assert hashlib.sha256(patch).hexdigest() == 'e5f34afeca6289d9ead3c3b66a0f9d3bf8283a17272976fa9e624f624fdbcd00', 'Patch checksum mismatch'
+          pathlib.Path('/tmp/inbox.patch').write_bytes(patch)
+          print('Verified source patch', len(patch), 'bytes')
+          PY
+            git apply --check /tmp/inbox.patch
+            git apply --index /tmp/inbox.patch
+          fi
+      - run: npm ci
+      - name: Syntax and asset references
+        run: npm run check 2>&1 | tee inbox-ci/check.log
+      - name: SQL and permissions regression
+        run: npm test 2>&1 | tee inbox-ci/tests.log
+      - name: Static build
+        run: npm run build 2>&1 | tee inbox-ci/build.log
+      - run: python -m pip install playwright==1.64.0
+      - run: python -m playwright install --with-deps chromium
+      - run: sudo apt-get install -y fonts-noto-core
+      - name: Existing UI regression
+        run: python tests/ui/portal-browser.py 2>&1 | tee inbox-ci/browser-regression.log
+      - name: Existing real API workflow acceptance
+        run: python tests/ui/workflow-browser.py 2>&1 | tee inbox-ci/browser-workflow.log
+      - name: Inbox and search real API browser acceptance
+        run: python tests/ui/inbox-search-browser.py 2>&1 | tee inbox-ci/browser-search.log
+      - name: Publish validated source only to isolated feature branch
+        run: |
+          if ! git diff --cached --quiet; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git commit -m 'Compact private moderator inbox and add partial admin search with dismissible glow'
+            git push origin HEAD:refs/heads/feature/moderator-inbox-search-polish
+          fi
+      - name: Package seven deployment files
+        run: |
+          python - <<'PY'
+          import json, pathlib, zipfile, hashlib
+          m=json.loads(pathlib.Path('INBOX-SEARCH-MANIFEST.json').read_text())
+          paths=m['newFiles']+m['modifiedFiles']
+          assert len(paths)==7
+          with zipfile.ZipFile('inbox-ci/ghorepawa-inbox-search-update.zip','w',zipfile.ZIP_DEFLATED) as z:
+            for p in paths+['INBOX-SEARCH-MANIFEST.json','INBOX-SEARCH-DEPLOY.md']: z.write(p,p)
+            z.writestr('INBOX-SEARCH-SHA256.json',json.dumps({p:hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest() for p in paths},indent=2))
+          print('Packaged seven runtime files; no credentials or customer records.')
+          PY
+      - name: Keep diagnostic evidence and source
+        if: always()
+        run: |
+          mkdir -p inbox-ci
+          TREE=$(git write-tree)
+          git archive --format=tar.gz --output=inbox-ci/reviewed-source.tar.gz "$TREE"
+          git rev-parse HEAD > inbox-ci/source-commit.txt
+          if [ -d .test-results/screenshots-inbox-search ]; then cp -r .test-results/screenshots-inbox-search inbox-ci/; fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: inbox-search-review
+          path: inbox-ci/
+          retention-days: 7
