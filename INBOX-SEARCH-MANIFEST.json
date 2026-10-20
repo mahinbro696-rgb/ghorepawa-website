@@ -1,0 +1,12 @@
+{
+  "release": "Moderator Inbox and Admin Search",
+  "branch": "feature/moderator-inbox-search-polish",
+  "base": "feature/admin-compact-polish @ f07c26823532f92e4ecdeba32118fa52501570cf",
+  "applicationRoot": "/home/bazarxbd/ghorepawa-app",
+  "restartRequired": true,
+  "npmInstallRequired": false,
+  "databaseMigrationRequired": false,
+  "newFiles": ["server/order-search.mjs", "public/admin/inbox-search.css", "public/admin/search.js"],
+  "modifiedFiles": ["api/orders.js", "public/admin/admin.js", "public/admin/work.js", "public/admin/index.html"],
+  "preserve": ["all other files", "node_modules", "public/uploads", "all environment variables", "existing database data"]
+}

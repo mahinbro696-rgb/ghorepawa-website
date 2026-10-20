@@ -42,7 +42,7 @@ function bindForm(form,callback){form.addEventListener('submit',async event=>{
  finally{activeForms.delete(form);submit.disabled=false;submit.removeAttribute('aria-busy');submit.textContent=label;}
 });}
 function renderLogin(){
- document.body.classList.remove('admin-mode');
+ cancelAdminSearch();document.body.classList.remove('admin-mode','moderator-mode');
  portalStop();readController?.abort();loadId++;dialog.close();dialog.innerHTML='';delete dialog.dataset.orderId;memberDialog.close();memberDialog.innerHTML='';members=[];orders=[];selected.clear();teamCacheAt=0;
  const moderator=location.pathname.startsWith('/moderator');
  app.innerHTML=`<main class="auth-page"><section class="auth-card">${authLogo}<h1>${moderator?'মডারেটর লগইন':'অ্যাডমিন লগইন'}</h1><p class="muted small">অর্ডার পরিচালনা করতে আপনার অ্যাকাউন্টে প্রবেশ করুন।</p><form id="login-form"><label>ইউজার আইডি<input name="username" value="${moderator?'':'admin'}" required autocomplete="username" spellcheck="false" autocapitalize="none" maxlength="40" placeholder="আপনার ইউজার আইডি"></label><label>পাসওয়ার্ড<input name="password" type="password" required autocomplete="current-password" maxlength="128" placeholder="আপনার পাসওয়ার্ড"></label><button class="btn full" type="submit">লগইন করুন →</button><p class="error" role="alert"></p></form><p class="help">অ্যাকাউন্ট বা পাসওয়ার্ডের জন্য মূল অ্যাডমিনের সঙ্গে যোগাযোগ করুন।</p><a class="auth-back" href="${moderator?'/admin':'/moderator'}">${moderator?'অ্যাডমিন লগইন':'মডারেটর লগইন'} →</a><a class="auth-back" href="/">← মূল ওয়েবসাইট</a></section></main>`;
@@ -74,11 +74,12 @@ async function navigate(next){
  if(!user)return;
  const allowed=user.role==='admin'?['dashboard','orders','callbacks','review','unapproved','products','team','notifications','settings']:['orders','workhistory'];
  if(!allowed.includes(next)){toast('This page is not available for your role.');return;}
- detailTicket++;dialog.close();dialog.innerHTML='';delete dialog.dataset.orderId;
+ cancelAdminSearch();detailTicket++;dialog.close();dialog.innerHTML='';delete dialog.dataset.orderId;
  view=next;page=1;selected.clear();orders=[];filter={q:'',status:'',assignee:''};await loadCurrent();
 }
-async function loadCurrent({background=false}={}){
+async function loadCurrent({background=false,search=false}={}){
  if(!user||(background&&uiBusy()))return;
+ if(!search&&!background)cancelAdminSearch();
  readController?.abort();readController=new AbortController();const signal=readController.signal;
  const id=++loadId,currentView=view,content=document.querySelector('#content');
  document.querySelectorAll('[data-view]').forEach(b=>{b.classList.toggle('active',b.dataset.view===view);b.setAttribute('aria-current',b.dataset.view===view?'page':'false');});
@@ -98,12 +99,13 @@ async function loadCurrent({background=false}={}){
   if(id!==loadId||!user||(background&&uiBusy()))return;
   const key=JSON.stringify([currentView,params.toString(),result,team]);
   orders=result.orders;total=result.total;stats=result.stats;if(team){members=team.members;if(refreshTeam)teamCacheAt=Date.now();}
-  if(!background||key!==renderedOrdersKey){const current=new Set(orders.filter(assignable).map(o=>o.id));selected=new Set([...selected].filter(x=>current.has(x)));renderOrders();renderedOrdersKey=key;}
+  if(!background||key!==renderedOrdersKey){const current=new Set(orders.filter(assignable).map(o=>o.id));selected=new Set([...selected].filter(x=>current.has(x)));renderOrders({preserveSearch:search});renderedOrdersKey=key;}
   document.querySelector('#updates-banner').hidden=true;
  }catch(e){if(e.name==='AbortError')return;if(id===loadId&&user){
    if(background){setConnection(false);return;}
+   if(search&&content.querySelector('#filter-form')){showAdminSearchError(e.message);return;}
    content.innerHTML=`<div class="notice" role="alert">${esc(e.message)}</div><button class="btn secondary" id="retry">Retry</button>`;document.querySelector('#retry').onclick=()=>loadCurrent();
- }}finally{if(id===loadId&&content.isConnected){content.classList.remove('is-loading');content.setAttribute('aria-busy','false');}}
+ }}finally{if(id===loadId&&content.isConnected){if(search)searchBusy(false);content.classList.remove('is-loading');content.setAttribute('aria-busy','false');}}
 }
 function badge(status){return `<span class="badge ${esc(status)}">${esc(statusLabels[status]||status)}</span>`;}
 // Compact rows are admin-only. Full details remain in the existing order dialog.
@@ -119,16 +121,16 @@ function renderAdminOrderRow(o){
  const trash='<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18 M9 6V3h6v3 M5 6l1 15h12l1-15 M10 10v7 M14 10v7"/></svg>';
  return `<tr class="state-${esc(o.status)}" data-record-id="${id}">
   <td class="order-check"><label class="check-target"><input type="checkbox" data-select="${id}" aria-label="Select ES-${ref}" ${selected.has(o.id)?'checked':''} ${!assignable(o)?'disabled':''}></label></td>
-  <td class="order-reference"><strong class="ref">ES-${ref}</strong>${adminOrderTime(o.created_at)}</td>
-  <td class="order-customer"><strong class="cell-title" title="${esc(o.customer_name)}">${esc(o.customer_name)}</strong><a class="phone-text" href="tel:+88${esc(o.phone)}">${esc(o.phone)}</a>${o.phone_orders>1?`<span class="duplicate">${number(o.phone_orders)} orders on this phone</span>`:''}</td>
-  <td class="order-location"><span class="cell-title" title="${esc(o.district)}">${esc(o.district)}</span><small class="cell-meta" title="${esc(o.area)}">${esc(o.area)}</small>${o.latest_note?`<p class="call-note" title="${esc(o.latest_note)}">${esc(o.latest_note)}</p>`:''}</td>
-  <td class="order-product"><span class="cell-title" title="${product}">${product}</span><div class="order-price-line"><strong>${money(o.total)}</strong><span class="quantity-tag">Qty ${number(o.quantity)}</span></div></td>
+  <td class="order-reference"><strong class="ref">${highlightOrderMatch('ES-'+o.reference)}</strong>${adminOrderTime(o.created_at)}</td>
+  <td class="order-customer"><strong class="cell-title" title="${esc(o.customer_name)}">${highlightOrderMatch(o.customer_name)}</strong><a class="phone-text" href="tel:+88${esc(o.phone)}">${highlightOrderMatch(o.phone)}</a>${o.phone_orders>1?`<span class="duplicate">${number(o.phone_orders)} orders on this phone</span>`:''}</td>
+  <td class="order-location"><span class="cell-title" title="${esc(o.district)}">${highlightOrderMatch(o.district)}</span><small class="cell-meta" title="${esc(o.area)}">${highlightOrderMatch(o.area)}</small>${filter.q?`<small class="search-address" title="${esc(o.address)}">${highlightOrderMatch(o.address)}</small>`:''}${o.latest_note?`<p class="call-note" title="${esc(o.latest_note)}">${esc(o.latest_note)}</p>`:''}</td>
+  <td class="order-product"><span class="cell-title" title="${product}">${highlightOrderMatch(o.product_name||'Ever Strong')}</span><div class="order-price-line"><strong>${money(o.total)}</strong><span class="quantity-tag">Qty ${number(o.quantity)}</span></div></td>
   <td class="order-status">${badge(o.status)}${callbackTag(o)}${o.callback_at?`<small class="cell-meta">Call: ${date(o.callback_at)}</small>`:''}</td>
   <td class="order-moderator">${o.assigned_to?staffChip(o.assigned_name,o.assigned_badge):'<span class="admin-custody">With admin</span>'}${o.confirmed_by?`<small class="cell-meta">Confirmed by</small>${staffChip(o.confirmed_name,o.confirmed_badge)}`:''}</td>
   <td class="order-actions"><div class="order-row-actions"><button type="button" class="row-open" data-open="${id}" aria-label="Open order ES-${ref}">Open</button><button type="button" class="delete-order-link" data-delete-order="${id}" aria-label="Permanently delete order ES-${ref}" title="Delete ES-${ref}">${trash}</button></div></td>
  </tr>`;
 }
-function renderOrders(){
+function renderOrders({preserveSearch=false}={}){
  if(user.role!=='admin'){renderModeratorInbox();return;}
  const count=Object.values(stats).reduce((a,b)=>a+b,0);
  const title=view==='review'?'Orders Confirmed by Moderator':view==='unapproved'?'Cancelled / Unapproved':view==='callbacks'?'Call Back Later':'All orders';
@@ -137,11 +139,15 @@ function renderOrders(){
  const people=members.filter(m=>m.role==='moderator'&&m.status==='active');
  const statusOptions=view==='callbacks'?['callback']:view==='unapproved'?['cancelled','unapproved']:Object.keys(statusLabels);
  const target=document.querySelector('#content');
- target.innerHTML=`<div class="page-heading"><div><div class="eyebrow">ADMIN PANEL / ORDER MANAGEMENT</div><h1>${title}</h1><p>${subtitle}</p></div><button id="refresh" class="btn secondary">Refresh</button></div>${view==='orders'?`<div class="stats">${cards.map(([s,label,n])=>`<button class="stat ${filter.status===s?'active':''}" data-stat="${s}"><span>${label}</span><b>${number(n)}</b></button>`).join('')}</div>`:''}<div class="status-legend" aria-label="Order colors"><span class="legend-complete">Complete</span><span class="legend-callback">Call Back Later</span><span class="legend-confirmed">Moderator confirmed</span><span class="legend-cancelled">Cancelled</span></div><section class="panel" aria-label="Order list"><form id="filter-form" class="filters"><label>Search<input name="q" value="${esc(filter.q)}" placeholder="Name, phone or ES-reference" autocomplete="off"></label><label>Status<select name="status"><option value="">All in this section</option>${statusOptions.map(k=>`<option value="${k}" ${filter.status===k?'selected':''}>${esc(statusLabels[k])}</option>`).join('')}</select></label><label>Assigned moderator<select name="assignee"><option value="">All moderators</option><option value="unassigned" ${filter.assignee==='unassigned'?'selected':''}>With admin / unassigned</option>${members.filter(m=>m.role==='moderator').map(m=>`<option value="${esc(m.id)}" ${filter.assignee===m.id?'selected':''}>${staffOption(m)}</option>`).join('')}</select></label><button class="btn" type="submit">Filter</button></form><div class="bulk-bar"><span class="selection-count" id="selected-count">${number(selected.size)} selected</span><label for="bulk-assignee">Assign to</label><select id="bulk-assignee" aria-label="Moderator for assignment"><option value="">Choose moderator</option>${people.map(m=>`<option value="${esc(m.id)}">${staffOption(m)}</option>`).join('')}</select><button id="assign" class="btn" ${!selected.size?'disabled':''}>Assign selected</button><span id="assignee-chip"></span></div><div class="table-scroll"><table class="work-table"><colgroup><col class="col-check"><col class="col-reference"><col class="col-customer"><col class="col-location"><col class="col-product"><col class="col-status"><col class="col-moderator"><col class="col-actions"></colgroup><thead><tr><th scope="col" class="order-check"><label class="check-target"><input type="checkbox" id="select-all" aria-label="Select all assignable orders on this page"></label></th><th scope="col">Order</th><th scope="col">Customer</th><th scope="col">Location / note</th><th scope="col">Product / total</th><th scope="col">Status</th><th scope="col">Assigned to</th><th scope="col">Actions</th></tr></thead><tbody>${orders.length?orders.map(renderAdminOrderRow).join(''):'<tr><td colspan="8"><div class="empty"><strong>No orders in this list</strong>New orders or changed filters will appear here.</div></td></tr>'}</tbody></table></div><div class="pagination"><span>${number(total)} orders &middot; page ${number(page)} / ${number(Math.max(1,Math.ceil(total/30)))}</span><div><button id="prev" class="btn secondary" ${page<=1?'disabled':''}>Previous</button><button id="next" class="btn secondary" ${page*30>=total?'disabled':''}>Next</button></div></div></section>`;
+ const heldForm=preserveSearch?target.querySelector('#filter-form'):null;
+ const focused=heldForm?.contains(document.activeElement)?document.activeElement:null;
+ const caret=focused?.name==='q'?[focused.selectionStart,focused.selectionEnd]:null;
+ target.innerHTML=`<div class="page-heading"><div><div class="eyebrow">ADMIN PANEL / ORDER MANAGEMENT</div><h1>${title}</h1><p>${subtitle}</p></div><button id="refresh" class="btn secondary">Refresh</button></div>${view==='orders'?`<div class="stats">${cards.map(([s,label,n])=>`<button class="stat ${filter.status===s?'active':''}" data-stat="${s}"><span>${label}</span><b>${number(n)}</b></button>`).join('')}</div>`:''}<div class="status-legend" aria-label="Order colors"><span class="legend-complete">Complete</span><span class="legend-callback">Call Back Later</span><span class="legend-confirmed">Moderator confirmed</span><span class="legend-cancelled">Cancelled</span></div><section class="panel" aria-label="Order list"><form id="filter-form" class="filters"><label class="order-search-label">Search orders<span class="order-search-control"><input name="q" value="${esc(filter.q)}" placeholder="Name, phone, address or ES-5" autocomplete="off" maxlength="100" aria-describedby="order-search-help"><button id="clear-search" class="search-clear" type="button" aria-label="Clear search" ${filter.q?'':'hidden'}>&times;</button></span><small id="order-search-help">Partial matches across all pages in this section.</small></label><label>Status<select name="status"><option value="">All in this section</option>${statusOptions.map(k=>`<option value="${k}" ${filter.status===k?'selected':''}>${esc(statusLabels[k])}</option>`).join('')}</select></label><label>Assigned moderator<select name="assignee"><option value="">All moderators</option><option value="unassigned" ${filter.assignee==='unassigned'?'selected':''}>With admin / unassigned</option>${members.filter(m=>m.role==='moderator').map(m=>`<option value="${esc(m.id)}" ${filter.assignee===m.id?'selected':''}>${staffOption(m)}</option>`).join('')}</select></label><button class="btn" type="submit">Search</button></form>${searchSummary()}<div class="bulk-bar"><span class="selection-count" id="selected-count">${number(selected.size)} selected</span><label for="bulk-assignee">Assign to</label><select id="bulk-assignee" aria-label="Moderator for assignment"><option value="">Choose moderator</option>${people.map(m=>`<option value="${esc(m.id)}">${staffOption(m)}</option>`).join('')}</select><button id="assign" class="btn" ${!selected.size?'disabled':''}>Assign selected</button><span id="assignee-chip"></span></div><div class="table-scroll"><table class="work-table"><colgroup><col class="col-check"><col class="col-reference"><col class="col-customer"><col class="col-location"><col class="col-product"><col class="col-status"><col class="col-moderator"><col class="col-actions"></colgroup><thead><tr><th scope="col" class="order-check"><label class="check-target"><input type="checkbox" id="select-all" aria-label="Select all assignable orders on this page"></label></th><th scope="col">Order</th><th scope="col">Customer</th><th scope="col">Location / note</th><th scope="col">Product / total</th><th scope="col">Status</th><th scope="col">Assigned to</th><th scope="col">Actions</th></tr></thead><tbody>${orders.length?orders.map(renderAdminOrderRow).join(''):'<tr><td colspan="8"><div class="empty"><strong>No orders in this list</strong>New orders or changed filters will appear here.</div></td></tr>'}</tbody></table></div><div class="pagination"><span>${number(total)} orders &middot; page ${number(page)} / ${number(Math.max(1,Math.ceil(total/30)))}</span><div><button id="prev" class="btn secondary" ${page<=1?'disabled':''}>Previous</button><button id="next" class="btn secondary" ${page*30>=total?'disabled':''}>Next</button></div></div></section>`;
+ if(heldForm)target.querySelector('#filter-form').replaceWith(heldForm);
  addOrderToolbar();
  target.querySelector('#refresh').onclick=()=>{selected.clear();loadCurrent();};
  target.querySelectorAll('[data-stat]').forEach(b=>b.onclick=()=>{filter.status=b.dataset.stat;page=1;selected.clear();loadCurrent();});
- target.querySelector('#filter-form').onsubmit=e=>{e.preventDefault();filter={q:'',status:'',assignee:'',...Object.fromEntries(new FormData(e.target))};page=1;selected.clear();loadCurrent();};
+ bindAdminSearch(target);
  bindOrderPaging(target);
  target.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>openOrder(orders.find(o=>o.id===b.dataset.open)));
  target.querySelectorAll('[data-delete-order]').forEach(b=>b.onclick=()=>confirmOrderDelete(orders.find(o=>o.id===b.dataset.deleteOrder)));
@@ -154,6 +160,8 @@ function renderOrders(){
   try{await api('orders',{method:'PATCH',body:JSON.stringify({action:'assign',ids,assignee,versions:Object.fromEntries(orders.filter(o=>selected.has(o.id)).map(o=>[o.id,o.version]))})});toast(`${number(ids.length)} orders assigned.`);selected.clear();await loadCurrent();}
   catch(err){toast(err.message);if(b.isConnected)syncSelection();}
  };syncSelection();
+ if(focused?.isConnected){const glow=adminSearchGlow;focused.focus({preventScroll:true});if(caret)focused.setSelectionRange(...caret);adminSearchGlow=glow;}
+ syncSearchGlow();
 }
 function syncSelection(){
  document.querySelectorAll('[data-select]').forEach(c=>{c.checked=selected.has(c.dataset.select);c.closest('tr')?.classList.toggle('is-selected',c.checked);});

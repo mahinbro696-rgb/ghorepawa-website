@@ -1,3 +1,4 @@
+import {appendOrderSearch} from '../server/order-search.mjs';
 import {ACTIVE_WORK,canWork,recordSubmission,eraseOrder,erasedKey,lockRequest} from '../server/workflow.mjs';
 import {LANDING_PRODUCT_ID} from '../server/products.mjs';
 import {endpoint,actor,body,rate,digest} from '../server/http.mjs';
@@ -59,8 +60,7 @@ export default endpoint(['GET','POST','PATCH','DELETE'],async(req,res)=>{
     else if(section&&!['callbacks','confirmed','cancelled'].includes(section))throw new AppError(400,'Invalid order section.');
     if(status){if(!statuses.includes(status))throw new AppError(400,'Invalid status.');add('o.status=?',status);}
     if(assignee&&admin){if(assignee==='unassigned')where.push('o.assigned_to IS NULL');else add('o.assigned_to=?',assignee);}
-    if(search){params.push(`%${search.replace(/[\\%_]/g,'\\$&')}%`);const x=`$${params.length}`;
-      where.push(`(o.customer_name ILIKE ${x} OR o.phone ILIKE ${x} OR ('ES-'||o.reference::text) ILIKE ${x})`);}
+    appendOrderSearch(search,params,where);
     const predicate=where.length?'WHERE '+where.join(' AND '):'';
     const values=[...params,30,(page-1)*30];
     // Never send financials, internal keys, other staff or audit records to moderators.

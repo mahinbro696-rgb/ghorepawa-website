@@ -120,9 +120,9 @@ try:
     state['signed']=True;state['role']='moderator';c.close();c,page=start_page(browser)
     page.goto(origin+'/moderator');page.locator('h1',has_text='My work inbox').wait_for();assert page.locator('[data-view="products"]').count()==0;assert page.locator('[data-view="team"]').count()==0
     page.locator('[data-view="orders"]').click();page.locator('#filter-form').wait_for();assert page.locator('#assign').count()==0
-    assert page.locator('body').evaluate('(e)=>getComputedStyle(e).fontSize')=='17px'
+    assert page.locator('body').evaluate('(e)=>getComputedStyle(e).fontSize')=='15px'
     assert page.locator('body.admin-mode').count()==0
-    print('PASS moderator: unchanged 17px UI, restricted menus and no admin bulk assignment')
+    print('PASS moderator: compact 15px UI, restricted menus and no admin bulk assignment')
     c.close();state['role']='admin';c,page=start_page(browser,mobile=True);page.goto(origin+'/admin');page.locator('.stats.summary').wait_for()
     assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth')
     page.locator('#menu-toggle').click();page.locator('[data-view="products"]').click();page.locator('#add-product').wait_for();assert not page.locator('body').evaluate("el=>el.classList.contains('mobile-nav-open')")

@@ -1,0 +1,130 @@
+/* Work-first moderator layout. Deliberately no dashboard, revenue or new permissions. */
+body.moderator-mode {font-size:15px;line-height:1.55;--radius:12px}
+.moderator-mode .shell {grid-template-columns:228px minmax(0,1fr)}
+.moderator-mode .sidebar {padding:24px 14px}
+.moderator-mode .brand strong {font-size:20px}
+.moderator-mode .brand-mark {width:38px;height:38px;border-radius:11px;font-size:14px}
+.moderator-mode .brand small {font-size:9px;letter-spacing:.55px}
+.moderator-mode .panel-identity {font-size:18px;padding:0 12px 14px}
+.moderator-mode .nav-caption {font-size:10px;letter-spacing:.6px;padding:10px 12px}
+.moderator-mode .nav-links button {font-size:14px;padding:11px 12px;align-items:center;min-height:44px}
+.moderator-mode .nav-links .icon {margin-top:0;width:18px;height:18px}
+.moderator-mode .sidebar-bottom {font-size:12px;line-height:1.6}
+.moderator-mode .workspace-label {font-size:10px}
+.moderator-mode .topbar {min-height:68px;padding:12px 24px}
+.moderator-mode .workspace-title strong {font-size:18px}
+.moderator-mode .workspace-title #breadcrumb,.moderator-mode .connection {font-size:12px}
+.moderator-mode .content {max-width:1560px;padding:26px}
+.moderator-mode .content.is-loading::before {left:228px;top:67px}
+.moderator-mode .content h1 {font-size:24px;line-height:1.35;letter-spacing:-.4px}
+.moderator-mode .page-heading {margin-bottom:20px;gap:16px;align-items:center}
+.moderator-mode .page-heading p {font-size:13px;line-height:1.55;margin-top:5px}
+.moderator-mode .eyebrow {font-size:10px;letter-spacing:1px}
+.moderator-mode .btn {font-size:13px;min-height:38px;padding:9px 13px;border-radius:9px}
+.moderator-mode .top-actions .icon-only {width:38px;min-height:38px;padding:8px}
+.moderator-mode .inbox-panel {overflow:hidden;background:#102036;box-shadow:0 5px 20px #02091626;border:1px solid #2b405b;border-radius:14px}
+.moderator-mode .work-search {margin:0;padding:16px 18px;border:0;border-radius:0;border-bottom:1px solid #2b405b;gap:12px;background:#14253c}
+.moderator-mode .work-search label {font-size:12px;gap:5px;max-width:540px}
+.moderator-mode .work-search input {font-size:14px;min-height:40px;padding:9px 12px;border-radius:9px}
+.moderator-mode .work-search .btn {min-height:40px}
+.moderator-mode .inbox-caption {display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 18px;font-size:12px;color:#a5b9d2;border-bottom:1px solid #263c56}
+.moderator-mode .inbox-caption strong {font-size:13px;color:#e0eafb}
+.moderator-mode .inbox-columns,.moderator-mode .work-card {display:grid;grid-template-columns:minmax(175px,1.15fr) minmax(160px,1fr) minmax(200px,1.4fr) 114px;gap:18px;align-items:center}
+.moderator-mode .inbox-columns {padding:10px 18px;font-size:11px;font-weight:600;letter-spacing:.2px;color:#92aac6;background:#0e1d32}
+.moderator-mode .moderator-work-list {display:block}
+.moderator-mode .work-card {padding:16px 18px;border:0;border-top:1px solid #2b405b;border-radius:0;background:#14243b;box-shadow:inset 3px 0 var(--row-accent,#8fb8f9);overflow-wrap:anywhere}
+.moderator-mode .work-card.state-callback {background:#28271e}
+.moderator-mode .work-card:hover {background:#1a2e47}
+.moderator-mode .work-card.state-callback:hover {background:#333023}
+.moderator-mode .work-card>div {min-width:0}
+.moderator-mode .work-card-top {margin:0 0 5px;justify-content:flex-start;gap:8px;flex-wrap:wrap}
+.moderator-mode .work-card .ref {font-size:12px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.moderator-mode .work-card h2 {font-size:15px;line-height:1.5;letter-spacing:0;margin:0;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.moderator-mode .work-card .badge {font-size:10px;line-height:1.6;padding:2px 7px;border-radius:6px;font-weight:600}
+.moderator-mode .work-card .call-link {display:inline-flex;align-items:center;gap:7px;font-size:14px;line-height:1.5;font-weight:600;min-height:36px;padding:4px 0;background:none;border:0;border-radius:4px;color:#a4c9ff;font-variant-numeric:tabular-nums;text-decoration:none;max-width:100%}
+.moderator-mode .work-card .call-link .icon {width:14px;height:14px;flex-shrink:0}
+.moderator-mode .work-card .work-location {font-size:12px;line-height:1.5;color:#acc0d7;margin:2px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.moderator-mode .work-card .task-product {font-size:13px;line-height:1.5;color:#e3edfc;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.moderator-mode .task-product span {font-size:12px;color:#a5b9d2;margin-left:4px}
+.moderator-mode .work-card .call-note,.moderator-mode .work-card .task-hint {display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;max-width:none;font-size:12px;line-height:1.55;padding:0;margin:5px 0 0;background:none;border:0;border-radius:0;color:#aebfd4}
+.moderator-mode .work-card .callback-time {display:flex;align-items:center;gap:6px;font-size:11px;line-height:1.5;margin:4px 0 0;color:#f3d38b}
+.moderator-mode .callback-time .icon {width:13px;height:13px;flex-shrink:0}
+.moderator-mode .work-card .callback-customer {font-size:10px;line-height:1.5;margin-top:5px}
+.moderator-mode .work-card .btn {width:100%;margin:0;min-height:38px;display:flex;align-items:center;justify-content:center;gap:10px;font-size:12px;white-space:nowrap}
+.moderator-mode .pagination {font-size:12px;padding:14px 18px;border-top:1px solid #2b405b}
+.moderator-mode .receipt-table {font-size:14px}
+.moderator-mode .receipt-table th {font-size:12px}
+.moderator-mode .receipt-table th,.moderator-mode .receipt-table td {padding:12px 18px}
+.moderator-mode .privacy-cover {padding:22px}
+.moderator-mode .empty {padding:36px 22px;font-size:13px}
+.moderator-mode dialog {font-size:15px}
+.moderator-mode dialog h2 {font-size:20px}
+.moderator-mode dialog select,.moderator-mode dialog textarea,.moderator-mode dialog input {font-size:16px}
+/* Search results are server-side and paginated; animation is cosmetic and dismissible. */
+.admin-mode .order-search-label {position:relative}
+.admin-mode .order-search-control {position:relative;display:block;width:100%}
+.admin-mode .order-search-control input {width:100%;padding-right:37px}
+.admin-mode .search-clear {position:absolute;right:4px;top:50%;transform:translateY(-50%);display:grid;place-items:center;width:32px;height:32px;min-height:32px;padding:0;border:0;border-radius:7px;background:transparent;color:#b7c9e3;font-size:20px;cursor:pointer}
+.admin-mode .search-clear:hover {background:#385274}
+.admin-mode .search-clear[hidden],.admin-mode .search-stop[hidden] {display:none}
+.admin-mode #order-search-help {display:block;font-size:11px;line-height:1.5;color:#9baec7;margin-top:4px}
+.admin-mode .search-summary {display:flex;justify-content:space-between;align-items:center;gap:14px;min-height:45px;padding:9px 18px;font-size:12px;color:#bfd2ef;background:#132942;border-top:1px solid #2c4869;border-bottom:1px solid #2c4869}
+.admin-mode .search-summary strong {color:#ecf4ff;overflow-wrap:anywhere}
+.admin-mode .search-stop {padding:5px 9px;border:1px solid #42618a;border-radius:7px;background:#1d3655;color:#e0ebfd;font:inherit;white-space:nowrap;cursor:pointer}
+.admin-mode .search-address {display:block;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;font-size:11px;color:#b7cae0;line-height:1.5;margin-top:3px}
+.admin-mode mark.search-match {background:#9ac7ff29;color:inherit;border-bottom:1px solid #9ac7ff8c;padding:0;border-radius:2px}
+.admin-mode .search-pending .table-scroll {opacity:.55}
+.admin-mode .search-glow .order-search-control::after {content:'';position:absolute;inset:-2px;pointer-events:none;border:1px solid #88baff;border-radius:11px;box-shadow:0 0 10px #639bff3b;animation:order-search-glow 2.8s ease-in-out infinite}
+.admin-mode .search-glow .work-table [data-record-id]>td {position:relative}
+.admin-mode .search-glow .work-table [data-record-id]>td::after {content:'';position:absolute;inset:0;pointer-events:none;border-top:1px solid #8fbeff;border-bottom:1px solid #8fbeff;animation:order-search-glow 2.8s ease-in-out infinite}
+.admin-mode .search-glow .work-table [data-record-id]>td:first-child::after {border-left:2px solid #8fbeff}
+.admin-mode .search-glow .work-table [data-record-id]>td:last-child::after {border-right:2px solid #8fbeff}
+@keyframes order-search-glow {0%,100%{opacity:.25}50%{opacity:.85}}
+@media(max-width:1200px){
+ .moderator-mode .inbox-columns {display:none}
+ .moderator-mode .work-card {grid-template-columns:minmax(0,1fr) minmax(0,1fr) 114px;gap:9px 18px}
+ .moderator-mode .task-context {grid-column:1/3;grid-row:2}
+ .moderator-mode .task-actions {grid-column:3;grid-row:1/3}
+}
+@media(max-width:900px){
+ .moderator-mode .shell {display:block}
+ .moderator-mode .sidebar {width:255px}
+ .moderator-mode .topbar {padding:10px 15px;min-height:66px}
+ .moderator-mode .content {padding:22px 16px}
+ .moderator-mode .content.is-loading::before {left:0;top:65px}
+ .moderator-mode .workspace-title strong {font-size:16px}
+}
+@media(max-width:560px){
+ body.moderator-mode {font-size:15px}
+ .moderator-mode .content {padding:20px 12px}
+ .moderator-mode .content h1 {font-size:22px}
+ .moderator-mode .page-heading {align-items:flex-start;gap:10px}
+ .moderator-mode .page-heading p {font-size:12px;max-width:205px}
+ .moderator-mode .page-heading .btn {min-height:40px;font-size:11px;padding:9px 10px}
+ .moderator-mode .work-search {padding:13px;flex-wrap:nowrap;gap:9px}
+ .moderator-mode .work-search label {min-width:0;flex:1;flex-basis:auto}
+ .moderator-mode .work-search input {font-size:16px;min-height:42px}
+ .moderator-mode .work-search .btn {width:auto;min-height:42px;padding:10px}
+ .moderator-mode .inbox-caption {padding:11px 13px;font-size:11px}
+ .moderator-mode .work-card {grid-template-columns:minmax(0,1fr) minmax(0,1fr);padding:14px 13px;gap:10px 12px}
+ .moderator-mode .work-card-top {gap:4px}
+ .moderator-mode .work-card h2 {font-size:14px}
+ .moderator-mode .work-card .badge {font-size:9px}
+ .moderator-mode .work-card .call-link {font-size:13px;min-height:40px;gap:4px}
+ .moderator-mode .work-card .call-link .icon {width:12px}
+ .moderator-mode .task-context {grid-column:1;grid-row:2}
+ .moderator-mode .task-actions {grid-column:2;grid-row:2;justify-self:end}
+ .moderator-mode .work-card .btn {min-height:44px;font-size:12px;width:auto;max-width:100%}
+ .moderator-mode .work-card .task-product {font-size:12px}
+ .moderator-mode .work-card .task-hint {display:none}
+ .moderator-mode .work-card .call-note {font-size:11px}
+ .moderator-mode .pagination {padding:12px 13px;gap:10px;flex-wrap:wrap}
+ .moderator-mode .pagination .btn {min-height:42px}
+ .admin-mode .search-summary {padding:10px 13px;align-items:flex-start;flex-wrap:wrap}
+ .admin-mode .search-clear {width:36px;min-height:36px}
+}
+@media(pointer:coarse){.moderator-mode .work-card .btn,.moderator-mode .work-card .call-link{min-height:44px}}
+@media(prefers-reduced-motion:reduce){
+ .admin-mode .search-glow .order-search-control::after,.admin-mode .search-glow .work-table [data-record-id]>td::after {animation:none;opacity:.7;box-shadow:none}
+}
+@media(prefers-contrast:more){.moderator-mode .work-location,.moderator-mode .task-hint,.moderator-mode .call-note{color:#e1ebff}}
