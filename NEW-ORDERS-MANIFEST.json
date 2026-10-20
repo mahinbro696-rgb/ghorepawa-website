@@ -1,0 +1,16 @@
+{
+  "release": "Ghorepawa Admin New Orders Queue",
+  "branch": "feature/admin-new-orders-queue",
+  "baseCommit": "56d39f77627133c23b26da9b956ba4b899ed259f",
+  "prerequisite": "Moderator Inbox and Search update installed",
+  "restartRequired": false,
+  "npmInstallRequired": false,
+  "databaseMigrationRequired": false,
+  "newFiles": [],
+  "modifiedFiles": [
+    "public/admin/admin.js",
+    "public/admin/portal.js",
+    "public/admin/search.js",
+    "public/admin/index.html"
+  ]
+}
