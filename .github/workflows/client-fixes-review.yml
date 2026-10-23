@@ -2,9 +2,8 @@ name: Client order fixes review
 on:
   push:
     branches: [fix/client-order-controls-english]
-    paths: [.github/workflows/client-fixes-review.yml]
 permissions:
-  contents: write
+  contents: read
 concurrency:
   group: client-fixes-${{ github.ref }}
   cancel-in-progress: false
@@ -19,7 +18,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: fix/client-order-controls-english
+          ref: ${{ github.sha }}
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
@@ -27,22 +27,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Apply checksum-verified reviewed source
-        run: |
-          mkdir -p client-ci
-          if [ -f .client-fixes/part1.txt ]; then
-            python - <<'PY'
-          from pathlib import Path
-          import base64,lzma,hashlib
-          encoded=''.join(Path(f'.client-fixes/part{i}.txt').read_text().strip() for i in range(1,4))
-          patch=lzma.decompress(base64.b64decode(encoded,validate=True))
-          assert hashlib.sha256(patch).hexdigest()=='5eb01a3b8cfaf6f74a865bd7a940cadff9f872885846e06c16c8c643e9a07ff7', 'Reviewed patch checksum mismatch'
-          Path('/tmp/client-fixes.patch').write_bytes(patch)
-          print('Verified reviewed patch:',len(patch),'bytes')
-          PY
-            git apply --unidiff-zero --check /tmp/client-fixes.patch
-            git apply --unidiff-zero --index /tmp/client-fixes.patch
-          fi
+      - run: mkdir -p client-ci
       - run: npm ci
       - name: Syntax and asset checks
         run: npm run check 2>&1 | tee client-ci/check.log
@@ -63,23 +48,13 @@ jobs:
         run: python tests/ui/new-orders-browser.py 2>&1 | tee client-ci/browser-new-orders.log
       - name: Client outcomes, assignments, English and read-only moderator acceptance
         run: python tests/ui/client-orders-browser.py 2>&1 | tee client-ci/browser-client.log
-      - name: Publish tested code to isolated feature branch only
-        run: |
-          if [ -d .client-fixes ]; then git rm -r .client-fixes; fi
-          if ! git diff --cached --quiet; then
-            git config user.name 'github-actions[bot]'
-            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            git commit -m 'Fix admin outcomes and assignment; add English panels and read-only moderator all orders'
-            git push origin HEAD:refs/heads/fix/client-order-controls-english
-          fi
       - name: Package the seventeen application files
         run: python scripts/package_client_fixes.py
       - name: Preserve source and test evidence
         if: always()
         run: |
           mkdir -p client-ci
-          TREE=$(git write-tree)
-          git archive --format=tar.gz --output=client-ci/reviewed-source.tar.gz "$TREE"
+          git archive --format=tar.gz --output=client-ci/reviewed-source.tar.gz HEAD
           git rev-parse HEAD > client-ci/source-commit.txt
           if [ -d .test-results/client-orders ]; then cp -r .test-results/client-orders client-ci/screenshots; fi
       - uses: actions/upload-artifact@v4
