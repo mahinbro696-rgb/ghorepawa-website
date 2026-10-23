@@ -21,7 +21,7 @@ export function getAuth() {
     rateLimit:{enabled:true,storage:'database',window:60,max:30,modelName:'team_auth_rate_limits'},
     plugins:[admin(),twoFactor({issuer:'Ever Strong',twoFactorTable:'team_auth_two_factor'})],
     hooks:{before:createAuthMiddleware(async ctx=>{
-      if(ctx.path==='/sign-up/email' && ctx.headers?.get('x-internal-provision') !== process.env.BETTER_AUTH_SECRET) throw new APIError('FORBIDDEN',{message:'অ্যাকাউন্ট শুধু অ্যাডমিন তৈরি করতে পারবেন।'});
+      if(ctx.path==='/sign-up/email' && ctx.headers?.get('x-internal-provision') !== process.env.BETTER_AUTH_SECRET) throw new APIError('FORBIDDEN',{message:'Only an administrator can create accounts.'});
     })},
     advanced:{useSecureCookies:!!process.env.VERCEL||process.env.NODE_ENV==='production',database:{validateSchema:false}},
     logger:{level:'error'}

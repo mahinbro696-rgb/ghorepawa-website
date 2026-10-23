@@ -43,7 +43,7 @@ try:
   cm=context();pm=login(cm,'inbox-a','moderator')
   # Compact rows rather than tall cards, preserving only the private assigned work.
   expect(pm.locator('.work-card')).to_have_count(3)
-  assert pm.locator('[data-view]').count()==2
+  assert pm.locator('[data-view]').count()==3
   assert pm.locator('.stats,.chart,#assign,[data-view="settings"]').count()==0
   assert 'Other Operator Customer' not in pm.locator('#content').inner_text()
   assert '\u09f3' not in pm.locator('#content').inner_text()

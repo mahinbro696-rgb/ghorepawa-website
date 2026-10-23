@@ -46,7 +46,7 @@ try:
   expect(pa.locator('[data-record-id="'+o1['id']+'"] .staff-chip')).to_contain_text('operator-a')
   assign(o2,b['id'])
   cm1=context();pm1=login(cm1,'operator-a','moderator')
-  assert pm1.locator('[data-view]').count()==2
+  assert pm1.locator('[data-view]').count()==3
   for v in ['dashboard','team','products','settings','notifications']:assert pm1.locator('[data-view="'+v+'"]').count()==0
   assert pm1.locator('.chart,.stats,#assign').count()==0
   assert 'Sample Assigned Customer' not in pm1.locator('body').inner_text()
@@ -74,6 +74,8 @@ try:
   pa.locator('[data-view="review"]').click();expect(pa.locator('[data-record-id="'+o1['id']+'"]')).to_have_class('state-confirmed')
   for status in ['dispatched','delivered']:
    pa.locator('[data-open="'+o1['id']+'"]').click();pa.locator('#order-update [name="status"]').select_option(status);pa.locator('#order-update [type="submit"]').click()
+   if status=='delivered':
+    expect(pa.locator('[data-record-id="'+o1['id']+'"]')).to_have_count(0);pa.locator('[data-view="completed"]').click()
    expect(pa.locator('[data-record-id="'+o1['id']+'"]')).to_have_class('state-'+status)
   assert get_order(o1['id'])['status']=='delivered'
   # Open another assigned order on moderator side; deletion must remove that dialog even while typing.

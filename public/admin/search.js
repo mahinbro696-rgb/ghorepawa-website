@@ -1,7 +1,7 @@
 'use strict';
 // Search remains scoped by the server. No customer data is persisted in browser storage.
 let adminSearchTimer=null,adminSearchPending=false,adminSearchGlow=false;
-const searchViews=new Set(['orders','neworders','review','callbacks','unapproved']);
+const searchViews=new Set(['orders','neworders','review','completed','callbacks','unapproved']);
 function dismissSearchGlow(){adminSearchGlow=false;syncSearchGlow();}
 function syncSearchGlow(){
  const target=document.querySelector('#content');if(!target)return;

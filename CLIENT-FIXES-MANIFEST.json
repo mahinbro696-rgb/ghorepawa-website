@@ -1,0 +1,38 @@
+{
+  "release": "Client Order Controls and English Panels",
+  "branch": "fix/client-order-controls-english",
+  "base": "0f4ca58ee1c98a364074013f86434793b6fecef0",
+  "restartRequired": true,
+  "npmInstallRequired": false,
+  "databaseMigrationRequired": false,
+  "applicationRoot": "/home/bazarxbd/ghorepawa-app",
+  "newFiles": [
+    "public/admin/client-orders.css"
+  ],
+  "modifiedFiles": [
+    "api/history.js",
+    "api/login.js",
+    "api/notifications.js",
+    "api/orders.js",
+    "api/security.js",
+    "api/session.js",
+    "api/team.js",
+    "public/admin/admin.js",
+    "public/admin/index.html",
+    "public/admin/portal.js",
+    "public/admin/search.js",
+    "public/admin/work.js",
+    "server/auth.mjs",
+    "server/bootstrap.mjs",
+    "server/domain.mjs",
+    "server/http.mjs"
+  ],
+  "preserve": [
+    ".env",
+    "node_modules",
+    "public/uploads",
+    "app.mjs",
+    "all other existing files",
+    "all existing server environment variables"
+  ]
+}

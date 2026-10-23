@@ -3,11 +3,11 @@ import {ACTIVE_WORK,canWork,recordSubmission,eraseOrder,erasedKey,lockRequest} f
 import {LANDING_PRODUCT_ID} from '../server/products.mjs';
 import {endpoint,actor,body,rate,digest} from '../server/http.mjs';
 import {transaction,getPool} from '../server/db.mjs';
-import {AppError,parseOrder,uuid,text,transition,canAssign,statuses,labels} from '../server/domain.mjs';
+import {AppError,parseOrder,uuid,text,transition,canAssign,allowedStatuses,statuses,labels} from '../server/domain.mjs';
 export default endpoint(['GET','POST','PATCH','DELETE'],async(req,res)=>{
   if(req.method==='POST'){
     const data=await body(req);
-    if(data.website)throw new AppError(400,'অনুরোধটি গ্রহণ করা যায়নি।');
+    if(data.website)throw new AppError(400,'The request could not be accepted.');
     const order=parseOrder(data),key=uuid(req.headers['idempotency-key']);
     const productId=data.productId?uuid(data.productId):LANDING_PRODUCT_ID;
     // Hash only normalized customer intent, not mutable catalog pricing.
@@ -51,13 +51,17 @@ export default endpoint(['GET','POST','PATCH','DELETE'],async(req,res)=>{
     const page=Math.max(1,Math.min(100000,Number(url.searchParams.get('page'))||1));
     if(!Number.isInteger(page))throw new AppError(400,'Invalid page.');
     const admin=user.role==='admin',params=[],where=[];
+    const scope=url.searchParams.get('scope')||'inbox';
+    if(!['inbox','all'].includes(scope))throw new AppError(400,'Invalid order scope.');
+    const sharedList=!admin&&scope==='all';
     const add=(sql,value)=>{params.push(value);where.push(sql.replace('?',`$${params.length}`));};
-    if(!admin){add('o.assigned_to=?',user.id);where.push("o.status IN('assigned','callback')");}
+    if(!admin&&!sharedList){add('o.assigned_to=?',user.id);where.push("o.status IN('assigned','callback')");}
     if(url.searchParams.get('id'))add('o.id=?',uuid(url.searchParams.get('id')));
     if(section==='callbacks')where.push("o.status='callback'");
-    else if(section==='confirmed'&&admin)where.push('o.confirmed_by IS NOT NULL');
-    else if(section==='cancelled'&&admin)where.push("o.status IN('cancelled','unapproved')");
-    else if(section&&!['callbacks','confirmed','cancelled'].includes(section))throw new AppError(400,'Invalid order section.');
+    else if(section==='confirmed'&&admin)where.push("o.status IN('confirmed','approved','dispatched')");
+    else if(section==='completed'&&admin)where.push("o.status='delivered'");
+    else if(section==='cancelled'&&admin)where.push("o.status='cancelled'");
+    else if(section&&!['callbacks','confirmed','completed','cancelled'].includes(section))throw new AppError(400,'Invalid order section.');
     if(status){if(!statuses.includes(status))throw new AppError(400,'Invalid status.');add('o.status=?',status);}
     if(assignee&&admin){if(assignee==='unassigned')where.push('o.assigned_to IS NULL');else add('o.assigned_to=?',assignee);}
     appendOrderSearch(search,params,where);
@@ -68,17 +72,23 @@ export default endpoint(['GET','POST','PATCH','DELETE'],async(req,res)=>{
       cm.name AS confirmed_name,cm.badge_number AS confirmed_badge,
       (SELECT count(*)::int FROM shop_orders d WHERE d.phone=o.phone) AS phone_orders`:
       `o.id,o.reference,o.customer_name,o.phone,o.district,o.area,o.address,o.quantity,
-       o.product_name,o.status,o.callback_at,o.callback_customer,o.latest_note,o.version,o.created_at,o.assigned_at`;
+       o.product_name,o.status,o.callback_at,o.callback_customer,
+       ${sharedList?'NULL AS latest_note':'o.latest_note'},o.version,o.created_at,o.assigned_at,
+       (o.assigned_to=$${params.length+3} AND o.status IN('assigned','callback')) AS can_update`;
     const joins=admin?'LEFT JOIN team_members m ON m.id=o.assigned_to LEFT JOIN team_members cm ON cm.id=o.confirmed_by':'';
     const [count,result,stats]=await Promise.all([
       getPool().query(`SELECT count(*)::int AS count FROM shop_orders o ${predicate}`,params),
       getPool().query(`SELECT ${fields} FROM shop_orders o ${joins} ${predicate}
         ORDER BY ${!admin?'o.assigned_at DESC NULLS LAST,':''}o.created_at DESC,o.id
-        LIMIT $${values.length-1} OFFSET $${values.length}`,values),
+        LIMIT $${values.length-1} OFFSET $${values.length}`,admin?values:[...values,user.id]),
       getPool().query(`SELECT status,count(*)::int AS count FROM shop_orders
-        ${admin?'':"WHERE assigned_to=$1 AND status IN('assigned','callback')"} GROUP BY status`,admin?[]:[user.id])
+        ${admin||sharedList?'':"WHERE assigned_to=$1 AND status IN('assigned','callback')"} GROUP BY status`,admin||sharedList?[]:[user.id])
     ]);
-    return res.json({orders:result.rows,total:count.rows[0].count,page,pageSize:30,
+    for(const row of result.rows){
+      if(admin){row.allowed_statuses=allowedStatuses(user,row);row.can_assign=canAssign(row);}
+      else {row.can_update=!sharedList&&!!row.can_update;row.read_only=!row.can_update;}
+    }
+    return res.json({orders:result.rows,scope:sharedList?'all':'inbox',total:count.rows[0].count,page,pageSize:30,
       stats:Object.fromEntries(stats.rows.map(x=>[x.status,x.count])),labels});
   }
   const data=await body(req);
@@ -103,9 +113,10 @@ export default endpoint(['GET','POST','PATCH','DELETE'],async(req,res)=>{
       const staff=(await c.query("SELECT id,name FROM team_members WHERE id=$1 AND role='moderator' AND status='active' FOR SHARE",[target])).rows[0];
       if(!staff)throw new AppError(400,'Select an active moderator.');
       const rows=(await c.query('SELECT id,status,assigned_to,version FROM shop_orders WHERE id=ANY($1::uuid[]) ORDER BY id FOR UPDATE',[ids])).rows;
-      if(rows.length!==ids.length||rows.some(o=>!canAssign(o)))throw new AppError(409,'Some orders changed or cannot be assigned. Refresh the list.');
+      if(rows.length!==ids.length)throw new AppError(409,'An order no longer exists. Refresh the list before assigning.');
+      if(rows.some(o=>!canAssign(o)))throw new AppError(409,'Only New, Assigned, Call Back Later or Unapproved orders can be assigned. No orders were changed.');
       // New UI sends expected versions; old API clients still retain status/row-lock safety.
-      if(data.versions&&rows.some(o=>data.versions[o.id]!==o.version))throw new AppError(409,'An order changed. Refresh before assigning.');
+      if(data.versions&&(typeof data.versions!=='object'||Array.isArray(data.versions)||rows.some(o=>!Number.isInteger(data.versions[o.id])||data.versions[o.id]!==o.version)))throw new AppError(409,'An order changed. Refresh before assigning.');
       await c.query(`UPDATE shop_orders SET assigned_to=$2,
         status=CASE WHEN status='callback' THEN 'callback' ELSE 'assigned' END,
         callback_at=CASE WHEN status='callback' THEN callback_at ELSE NULL END,

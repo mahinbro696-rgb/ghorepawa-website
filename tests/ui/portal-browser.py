@@ -36,6 +36,8 @@ def route_api(route):
     elif name=='dashboard':out={'totals':{'orders':246,'today':18,'collected':'57240','pipeline':'14890','new_orders':12,'review':5,'delivered':146,'overdue':3,'to_call':8},'daily':[{'day':'2026-10-%02d'%day,'count':n,'value':str(n*399)} for day,n in zip(range(13,20),[12,18,9,24,17,31,18])],'recent':orders,'asOf':'2026-10-19T18:00:00Z'}
     elif name=='orders':
         selected=[o for o in orders if 'id' not in q or o['id']==q['id'][0]]
+        for item in selected:
+            item['allowed_statuses']={'new':['confirmed','delivered','cancelled'],'assigned':['confirmed','callback','cancelled'],'confirmed':['delivered','dispatched','cancelled']}.get(item['status'],[])
         out={'orders':selected,'total':len(selected),'page':1,'pageSize':30,'stats':{'new':12,'assigned':8,'confirmed':5,'approved':10,'delivered':146}}
     elif name=='team':out={'members':[dict(admin,status='active',total_orders=0,pending_orders=0,confirmed_orders=0),dict(mod,status='active',total_orders=19,pending_orders=8,confirmed_orders=11)]}
     elif name=='history':out={'events':[{'kind':'created','created_at':'2026-10-19T12:00:00Z','note':'','actor_name':None}]}

@@ -1,0 +1,21 @@
+/* Client order controls: scoped, no changes to the public storefront. */
+.admin-mode .stats:not(.summary){grid-template-columns:repeat(6,minmax(0,1fr))}
+.bulk-help,#assignment-error{flex:1 1 100%;margin:2px 0;font-size:12px;line-height:1.5}
+.bulk-help{color:var(--muted)}
+.status-action-buttons{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 16px}
+.status-action-buttons .outcome-delivered{border-color:#368e71;color:#99e3c7}
+.status-action-buttons .outcome-cancelled{border-color:#a44f61;color:#ffbac8}
+.status-action-buttons .outcome-confirmed{border-color:#7961b0;color:#d5c0fc}
+.status-action-buttons [aria-pressed="true"]{box-shadow:0 0 0 2px currentColor}
+.detail-assignment{margin-top:20px;padding:18px 0;border-top:1px solid var(--line)}
+.detail-assignment form{display:grid;gap:12px}
+.readonly-notice{border:1px solid var(--line);padding:12px;border-radius:10px;background:#16283b}
+.shared-order-search{display:flex;align-items:end;gap:12px;padding:16px;margin-bottom:16px}
+.shared-order-search label:first-child{flex:1}
+.shared-orders{overflow:hidden}.shared-orders table{width:100%;font-size:13px;border-collapse:collapse}
+.shared-orders td,.shared-orders th{padding:12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:middle;max-width:250px;overflow-wrap:anywhere}
+.shared-orders small,.shared-orders td span,.shared-orders td strong{display:block}
+.shared-orders small{color:var(--muted);font-size:11px;margin-top:4px}
+.shared-orders .badge{display:inline-flex}.shared-orders button{font-size:13px;min-height:40px}
+@media(max-width:1000px){.admin-mode .stats:not(.summary){grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:650px){.shared-order-search{flex-direction:column;align-items:stretch}.shared-orders table{min-width:700px}.shared-orders .table-scroll{overflow:auto}.shared-order-search input,.shared-order-search select{font-size:16px}.admin-mode .stats:not(.summary){grid-template-columns:repeat(2,minmax(0,1fr))}}

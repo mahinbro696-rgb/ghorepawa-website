@@ -7,9 +7,9 @@ export default endpoint(['GET','POST'],async(req,res)=>{
   const data=await body(req);
   if(data.action==='logout')return sendAuthResponse(res,await getAuth().api.signOut({headers:headers(req),asResponse:true}));
   if(data.action==='password'){
-    const result=await getAuth().api.changePassword({headers:headers(req),body:{currentPassword:text(data.currentPassword,'বর্তমান পাসওয়ার্ড',1,128),newPassword:password(data.newPassword),revokeOtherSessions:true},asResponse:true});
-    if(!result.ok)throw new AppError(400,'বর্তমান পাসওয়ার্ড সঠিক নয় অথবা পরিবর্তন করা যায়নি।');
+    const result=await getAuth().api.changePassword({headers:headers(req),body:{currentPassword:text(data.currentPassword,'Current password',1,128),newPassword:password(data.newPassword),revokeOtherSessions:true},asResponse:true});
+    if(!result.ok)throw new AppError(400,'Incorrect current password or the change could not be saved.');
     return sendAuthResponse(res,result);
   }
-  throw new AppError(400,'কাজটি সঠিক নয়।');
+  throw new AppError(400,'Invalid action.');
 });

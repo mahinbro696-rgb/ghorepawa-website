@@ -10,8 +10,8 @@ export async function applyOwnerCredentials(client,hash){
   const owner=(await client.query("SELECT id,username FROM team_members WHERE role='admin' FOR UPDATE")).rows[0];
   const id=owner?.id||randomUUID();
   if(!owner){
-    await client.query(`INSERT INTO team_auth_users(id,name,email,"emailVerified","createdAt","updatedAt",role) VALUES($1,$2,$3,false,now(),now(),'admin')`,[id,'প্রধান অ্যাডমিন',staffEmail('admin')]);
-    await client.query("INSERT INTO team_members(id,username,name,role,status) VALUES($1,'admin',$2,'admin','active')",[id,'প্রধান অ্যাডমিন']);
+    await client.query(`INSERT INTO team_auth_users(id,name,email,"emailVerified","createdAt","updatedAt",role) VALUES($1,$2,$3,false,now(),now(),'admin')`,[id,'Primary administrator',staffEmail('admin')]);
+    await client.query("INSERT INTO team_members(id,username,name,role,status) VALUES($1,'admin',$2,'admin','active')",[id,'Primary administrator']);
   }else{
     await client.query("UPDATE team_members SET username='admin',status='active' WHERE id=$1",[id]);
     await client.query(`UPDATE team_auth_users SET email=$2,role='admin',"updatedAt"=now() WHERE id=$1`,[id,staffEmail('admin')]);

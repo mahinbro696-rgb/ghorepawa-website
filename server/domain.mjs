@@ -2,43 +2,60 @@ export class AppError extends Error {
   constructor(status, message) { super(message); this.status = status; }
 }
 export const statuses = ['new','assigned','callback','confirmed','approved','unapproved','dispatched','delivered','cancelled'];
-export const labels = {new:'নতুন',assigned:'বরাদ্দ দেওয়া',callback:'পুনরায় কল',confirmed:'চূড়ান্ত যাচাই বাকি',approved:'অনুমোদিত',unapproved:'অননুমোদিত',dispatched:'কুরিয়ারে পাঠানো',delivered:'ডেলিভারি সম্পন্ন',cancelled:'বাতিল'};
+export const labels = {new:'New',assigned:'Assigned',callback:'Call Back Later',confirmed:'Confirmed',approved:'Approved for courier',unapproved:'Unapproved',dispatched:'Sent to courier',delivered:'Complete',cancelled:'Cancelled'};
 export function text(value, label, min = 1, max = 100) {
-  if (typeof value !== 'string') throw new AppError(400, `${label} সঠিকভাবে লিখুন।`);
+  if (typeof value !== 'string') throw new AppError(400, `${label} must be entered correctly.`);
   const result = value.trim();
-  if (result.length < min || result.length > max) throw new AppError(400, `${label} ${min}–${max} অক্ষরের মধ্যে লিখুন।`);
+  if (result.length < min || result.length > max) throw new AppError(400, `${label} ${min}–${max} characters required.`);
   return result;
 }
 export function username(value) {
-  const result = text(value, 'ইউজার আইডি', 3, 40).toLowerCase();
-  if (!/^[a-z0-9][a-z0-9_.-]{2,39}$/.test(result)) throw new AppError(400, 'ইউজার আইডিতে ইংরেজি অক্ষর, সংখ্যা, ডট, ড্যাশ বা আন্ডারস্কোর ব্যবহার করুন।');
+  const result = text(value, 'Username', 3, 40).toLowerCase();
+  if (!/^[a-z0-9][a-z0-9_.-]{2,39}$/.test(result)) throw new AppError(400, 'Use English letters, numbers, dots, dashes or underscores in your username.');
   return result;
 }
-export function password(value) { return text(value, 'পাসওয়ার্ড', 12, 128); }
+export function password(value) { return text(value, 'Password', 12, 128); }
 export function phone(value) {
-  const normalized = text(value, 'মোবাইল নম্বর', 8, 30).replace(/[০-৯]/g, x => String('০১২৩৪৫৬৭৮৯'.indexOf(x))).replace(/[\s()-]/g, '').replace(/^(?:\+88|88)/, '');
-  if (!/^01[3-9][0-9]{8}$/.test(normalized)) throw new AppError(400, 'সঠিক বাংলাদেশি মোবাইল নম্বর দিন।');
+  const normalized = text(value, 'Phone number', 8, 30).replace(/[০-৯]/g, x => String('০১২৩৪৫৬৭৮৯'.indexOf(x))).replace(/[\s()-]/g, '').replace(/^(?:\+88|88)/, '');
+  if (!/^01[3-9][0-9]{8}$/.test(normalized)) throw new AppError(400, 'Enter a valid Bangladesh phone number.');
   return normalized;
 }
 export function uuid(value) {
-  if (typeof value !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value)) throw new AppError(400, 'অর্ডারের পরিচয় সঠিক নয়।');
+  if (typeof value !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value)) throw new AppError(400, 'Invalid order identifier.');
   return value;
 }
 export function parseOrder(body) {
   const quantity = Number(body.quantity);
-  if (!Number.isInteger(quantity) || quantity < 1 || quantity > 10) throw new AppError(400, 'পরিমাণ ১ থেকে ১০ বোতলের মধ্যে দিন।');
-  return {name:text(body.name,'নাম',2,100), phone:phone(body.phone),district:text(body.district,'জেলা',2,60),area:text(body.area,'থানা / উপজেলা',2,80),address:text(body.address,'ঠিকানা',5,500),quantity,unitPrice:399,total:quantity * 399};
+  if (!Number.isInteger(quantity) || quantity < 1 || quantity > 10) throw new AppError(400, 'Quantity must be between 1 and 10 bottles.');
+  return {name:text(body.name,'Name',2,100), phone:phone(body.phone),district:text(body.district,'District',2,60),area:text(body.area,'Area',2,80),address:text(body.address,'Address',5,500),quantity,unitPrice:399,total:quantity * 399};
+}
+// One transition policy drives both server validation and the UI's allowed choices.
+export function allowedStatuses(actor, order) {
+  if (actor.role === 'moderator') {
+    return order.assigned_to === actor.id && ['assigned','callback'].includes(order.status)
+      ? ['confirmed','callback','unapproved','cancelled'] : [];
+  }
+  if (actor.role !== 'admin') return [];
+  const choices = {
+    new:['confirmed','delivered','callback','cancelled'],
+    assigned:['confirmed','delivered','callback','unapproved','cancelled'],
+    callback:['confirmed','delivered','callback','unapproved','cancelled'],
+    confirmed:['delivered','dispatched','approved','cancelled','unapproved'],
+    approved:['delivered','dispatched','cancelled'],
+    dispatched:['delivered','cancelled'],
+    unapproved:['confirmed','delivered','callback','cancelled']
+  };
+  return choices[order.status] || [];
 }
 export function transition(actor, order, next, note, callbackAt) {
-  if (!statuses.includes(next)) throw new AppError(400, 'অর্ডারের অবস্থা সঠিক নয়।');
-  if (actor.role === 'moderator') {
-    if (order.assigned_to !== actor.id) throw new AppError(403, 'এই অর্ডারটি আপনার জন্য বরাদ্দ নেই।');
-    if (!['assigned','callback'].includes(order.status) || !['callback','confirmed','unapproved','cancelled'].includes(next)) throw new AppError(409, 'এই অর্ডারের অবস্থায় মডারেটর পরিবর্তন করতে পারবেন না।');
-  } else {
-    const allowed = {new:['cancelled'],assigned:['callback','confirmed','unapproved','cancelled'],callback:['callback','confirmed','unapproved','cancelled'],confirmed:['approved','dispatched','unapproved','cancelled'],approved:['dispatched','cancelled'],dispatched:['delivered','cancelled'],unapproved:['cancelled']};
-    if (!allowed[order.status]?.includes(next)) throw new AppError(409, 'এই পরিবর্তনটি এখন করা যাবে না। বরাদ্দ পরিবর্তনের জন্য Assign ব্যবহার করুন।');
-  }
-  if (['unapproved','cancelled','callback'].includes(next) && !note?.trim()) throw new AppError(400, 'কারণ বা কলের নোট লিখুন।');
-  if (next === 'callback' && (!callbackAt || !Number.isFinite(Date.parse(callbackAt)) || Date.parse(callbackAt) <= Date.now())) throw new AppError(400, 'পুনরায় কল করার ভবিষ্যৎ সময় নির্বাচন করুন।');
+  if (!statuses.includes(next)) throw new AppError(400, 'Invalid order status.');
+  if (actor.role === 'moderator' && order.assigned_to !== actor.id)
+    throw new AppError(403, 'This order is not assigned to you.');
+  if (!allowedStatuses(actor,order).includes(next))
+    throw new AppError(409, 'This status change is not available. Reopen the order to see current actions.');
+  if (['unapproved','cancelled','callback'].includes(next) && !note?.trim())
+    throw new AppError(400, 'Enter a reason or call note.');
+  if (next === 'callback' && (!callbackAt || !Number.isFinite(Date.parse(callbackAt)) || Date.parse(callbackAt) <= Date.now()))
+    throw new AppError(400, 'Select a future callback time.');
 }
 export function canAssign(order) { return ['new','assigned','callback','unapproved'].includes(order.status); }

@@ -28,11 +28,16 @@ export default endpoint(['GET','PATCH'],async(req,res)=>{
   ]);
   let accessibleIds;
   if(user.role!=='admin'){
-    const tracked=new URL(req.url,'https://local').searchParams.get('tracked')||'';
+    const query=new URL(req.url,'https://local').searchParams;
+    const sharedList=query.get('scope')==='all';
+    const tracked=query.get('tracked')||'';
     const ids=tracked?tracked.split(','):[];
     if(ids.length>31)throw new AppError(400,'Too many tracked orders.');
     ids.forEach(uuid);
-    accessibleIds=ids.length?(await pool.query("SELECT id FROM shop_orders WHERE assigned_to=$1 AND status IN('assigned','callback') AND id=ANY($2::uuid[])",[user.id,ids])).rows.map(o=>o.id):[];
+    accessibleIds=ids.length?(await pool.query(sharedList
+      ? 'SELECT id FROM shop_orders WHERE id=ANY($1::uuid[])'
+      : "SELECT id FROM shop_orders WHERE assigned_to=$1 AND status IN('assigned','callback') AND id=ANY($2::uuid[])",
+      sharedList?[ids]:[user.id,ids])).rows.map(o=>o.id):[];
   }
   res.json({accessibleIds,items:items.rows.slice(0,30),hasMore:items.rows.length>30,latestId:latest,unread:summary.rows[0].unread,readThrough:state.rows[0]?.read_through||'0',due:due.rows[0].count});
 });

@@ -89,9 +89,9 @@ test('Glass Workflow v3: scoped work, callback handoff and explicit order erasur
   assert.equal(o.assigned_to,null);assert.equal(o.confirmed_by,bob.id);assert.equal(o.confirmed_name,'bob-mod');
   assert.equal(ok(await b('/api/orders?id='+o.id)).total,0);assert.equal(ok(await admin('/api/orders?section=confirmed')).orders[0].id,o.id);
   assert.equal((await submit(b,o.id,'delivered')).status,403);
-  assert.equal((await submit(admin,o.id,'delivered')).status,409);
-  ok(await submit(admin,o.id,'dispatched'));ok(await submit(admin,o.id,'delivered'));
-  assert.equal((await read(o.id)).status,'delivered');assert.equal(ok(await admin('/api/orders?section=confirmed')).orders[0].status,'delivered');
+  // Client policy now permits admin completion without a mandatory courier hop.
+  ok(await submit(admin,o.id,'delivered'));
+  assert.equal((await read(o.id)).status,'delivered');assert.equal(ok(await admin('/api/orders?section=confirmed')).orders.length,0);assert.equal(ok(await admin('/api/orders?section=completed')).orders[0].status,'delivered');
   assert.equal(ok(await b('/api/workhistory')).items[0].outcome,'confirmed');
  });
  let cancellation;
